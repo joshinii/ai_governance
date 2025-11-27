@@ -1,0 +1,79 @@
+{
+  "manifest_version": 3,
+  "name": "AI Governance Monitor",
+  "version": "1.0.0",
+  "description": "Enterprise AI usage monitoring and governance - tracks prompts, detects PII, and improves prompt quality",
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "https://chat.openai.com/*",
+    "https://claude.ai/*",
+    "https://gemini.google.com/*",
+    "https://copilot.microsoft.com/*"
+  ],
+  "background": {
+    "service_worker": "src/background/service-worker.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://chat.openai.com/*",
+        "https://chatgpt.com/*"
+      ],
+      "js": [
+        "src/content/chatgpt.js"
+      ],
+      "run_at": "document_end"
+    },
+    {
+      "matches": [
+        "https://claude.ai/*"
+      ],
+      "js": [
+        "src/content/claude.js"
+      ],
+      "run_at": "document_end"
+    },
+    {
+      "matches": [
+        "https://gemini.google.com/*"
+      ],
+      "js": [
+        "config.js",
+        "src/shared/pii-detector.js",
+        "src/shared/api-client.js",
+        "src/shared/variant-modal.js",
+        "src/content/gemini.js"
+      ],
+      "run_at": "document_end"
+    },
+    {
+      "matches": [
+        "https://copilot.microsoft.com/*"
+      ],
+      "js": [
+        "config.js",
+        "src/shared/pii-detector.js",
+        "src/shared/api-client.js",
+        "src/shared/variant-modal.js",
+        "src/content/copilot.js"
+      ],
+      "run_at": "document_end"
+    }
+  ],
+  "action": {
+    "default_popup": "src/popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

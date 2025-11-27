@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Governance Monitor</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🛡️ AI Governance</h1>
+      <p class="subtitle">Enterprise monitoring active</p>
+    </header>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" id="prompts-count">0</div>
+        <div class="stat-label">Prompts Monitored</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-value" id="pii-count">0</div>
+        <div class="stat-label">PII Blocked</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-value" id="variants-count">0</div>
+        <div class="stat-label">Improvements Used</div>
+      </div>
+    </div>
+
+    <div class="status-section">
+      <h3>Status</h3>
+      <div class="status-item">
+        <span class="status-indicator active"></span>
+        <span>Monitoring Active</span>
+      </div>
+      <div class="status-item">
+        <span class="status-indicator active"></span>
+        <span>PII Detection: ON</span>
+      </div>
+      <div class="status-item">
+        <span class="status-indicator active"></span>
+        <span>Prompt Improvements: ON</span>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button id="view-dashboard" class="btn btn-primary">
+        View Dashboard
+      </button>
+      <button id="test-connection" class="btn btn-secondary">
+        Test Backend Connection
+      </button>
+    </div>
+
+    <footer>
+      <p class="footer-text">v1.0.0 • <a href="#" id="settings-link">Settings</a></p>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
