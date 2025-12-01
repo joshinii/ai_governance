@@ -56,6 +56,36 @@
       <p id="save-status" class="status-message"></p>
     </div>
 
+    <div class="configuration-section">
+      <h3>Configuration</h3>
+      <div class="config-toggle">
+        <button id="toggle-config" class="btn btn-small">Show Configuration</button>
+      </div>
+      <div id="config-panel" class="config-panel hidden">
+        <div class="input-group">
+          <label for="config-api-url">Backend API URL</label>
+          <input type="url" id="config-api-url" placeholder="https://example.com" />
+        </div>
+        <div class="input-group">
+          <label for="config-auth0-domain">Auth0 Domain</label>
+          <input type="text" id="config-auth0-domain" placeholder="dev-xxxxx.auth0.com" />
+        </div>
+        <div class="input-group">
+          <label for="config-auth0-client-id">Auth0 Client ID</label>
+          <input type="text" id="config-auth0-client-id" placeholder="Your Auth0 Client ID" />
+        </div>
+        <div class="input-group">
+          <label for="config-auth0-audience">Auth0 API Audience</label>
+          <input type="url" id="config-auth0-audience" placeholder="https://api.example.com" />
+        </div>
+        <div class="config-buttons">
+          <button id="save-config" class="btn btn-small btn-success">Save Configuration</button>
+          <button id="reset-config" class="btn btn-small btn-danger">Reset to Defaults</button>
+        </div>
+        <p id="config-status" class="status-message"></p>
+      </div>
+    </div>
+
     <div class="actions">
       <button id="view-dashboard" class="btn btn-primary">
         View Dashboard

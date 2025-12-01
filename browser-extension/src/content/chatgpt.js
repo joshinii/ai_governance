@@ -1,15 +1,47 @@
-const config = {
-  API_URL: 'https://blah-subsequent-personal-synthetic.trycloudflare.com',
-  API_KEY: 'dev-secret-key-change-in-production',
-  USER_EMAIL: 'joshini.mn@gmail.com',
-  ORG_ID: 1,
-  FEATURES: {
-    PII_DETECTION: true,
-    PROMPT_VARIANTS: true,
-    USAGE_LOGGING: true,
-    PROMPT_HISTORY: true
+// Configuration is loaded from config.js (global CONFIG object)
+// If CONFIG is not available, use these fallback defaults
+let config = null;
+
+// Load config from background script or use global CONFIG
+async function initializeConfig() {
+  try {
+    // Try to get config from background script (handles user overrides in chrome.storage)
+    const response = await chrome.runtime.sendMessage({ type: 'GET_CONFIG' });
+    config = {
+      ...response,
+      API_KEY: 'dev-secret-key-change-in-production',
+      USER_EMAIL: 'joshini.mn@gmail.com',
+      ORG_ID: 1
+    };
+  } catch (error) {
+    // Fallback to global CONFIG if available
+    if (typeof CONFIG !== 'undefined') {
+      config = {
+        ...CONFIG,
+        API_KEY: 'dev-secret-key-change-in-production',
+        USER_EMAIL: 'joshini.mn@gmail.com',
+        ORG_ID: 1
+      };
+    } else {
+      // Last resort defaults
+      config = {
+        API_URL: 'https://sunshineless-beckett-axial.ngrok-free.dev',
+        API_KEY: 'dev-secret-key-change-in-production',
+        USER_EMAIL: 'joshini.mn@gmail.com',
+        ORG_ID: 1,
+        FEATURES: {
+          PII_DETECTION: true,
+          PROMPT_VARIANTS: true,
+          USAGE_LOGGING: true,
+          PROMPT_HISTORY: true
+        }
+      };
+    }
   }
-};
+}
+
+// Initialize config immediately
+initializeConfig();
 
 console.log('[AI Governance] ChatGPT monitor active');
 

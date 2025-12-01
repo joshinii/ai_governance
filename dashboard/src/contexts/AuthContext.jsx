@@ -6,10 +6,21 @@ const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   // Load Auth0 configuration from environment variables
-  const auth0Domain = import.meta.env.VITE_AUTH0_DOMAIN || "dev-y75lecimhanaeqy7.us.auth0.com"
-  const auth0ClientId = import.meta.env.VITE_AUTH0_CLIENT_ID || "b2Q5VZ2pv4Ve8YralLn1dUtAHeEnpJGl"
-  const auth0Audience = import.meta.env.VITE_AUTH0_AUDIENCE || "https://blah-subsequent-personal-synthetic.trycloudflare.com"
+  const auth0Domain = import.meta.env.VITE_AUTH0_DOMAIN
+  const auth0ClientId = import.meta.env.VITE_AUTH0_CLIENT_ID
+  const auth0Audience = import.meta.env.VITE_AUTH0_AUDIENCE
   const auth0RedirectUri = import.meta.env.VITE_AUTH0_REDIRECT_URI || window.location.origin
+
+  // Validate required environment variables
+  if (!auth0Domain) {
+    throw new Error('VITE_AUTH0_DOMAIN environment variable is not set. Please check your .env file.')
+  }
+  if (!auth0ClientId) {
+    throw new Error('VITE_AUTH0_CLIENT_ID environment variable is not set. Please check your .env file.')
+  }
+  if (!auth0Audience) {
+    throw new Error('VITE_AUTH0_AUDIENCE environment variable is not set. Please check your .env file.')
+  }
 
   return (
     <Auth0Provider

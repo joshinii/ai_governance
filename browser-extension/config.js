@@ -1,16 +1,24 @@
 /**
  * Configuration for the extension
- * Update these values based on your Auth0 and backend deployment
+ * IMPORTANT: These are default values. Users can override them in the popup settings.
+ * Configuration is stored in chrome.storage.sync and can be modified without reloading the extension.
+ *
+ * To change settings:
+ * 1. Click the extension icon in Chrome
+ * 2. Click "Show Configuration"
+ * 3. Update Backend API URL, Auth0 Domain, Client ID, and API Audience
+ * 4. Click "Save Configuration"
+ * 5. Changes apply immediately to all tabs
  */
 
 const CONFIG = {
-  // Backend API URL
-  API_URL: 'https://blah-subsequent-personal-synthetic.trycloudflare.com',
+  // Backend API URL - Update in popup settings, not here
+  API_URL: 'https://sunshineless-beckett-axial.ngrok-free.dev',
 
-  // Auth0 Configuration
+  // Auth0 Configuration - Update in popup settings, not here
   AUTH0_DOMAIN: 'dev-y75lecimhanaeqy7.us.auth0.com',
-  AUTH0_CLIENT_ID: 'b2Q5VZ2pv4Ve8YralLn1dUtAHeEnpJGl',
-  AUTH0_API_AUDIENCE: 'https://blah-subsequent-personal-synthetic.trycloudflare.com',
+  AUTH0_CLIENT_ID: 'p6onL1VwfnH2gHMjqjTw4pw16g2KnSZS',
+  AUTH0_API_AUDIENCE: 'https://sunshineless-beckett-axial.ngrok-free.dev',
 
   // Feature flags
   FEATURES: {

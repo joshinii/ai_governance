@@ -4,7 +4,12 @@
  */
 import axios from 'axios'
 
-const API_URL = import.meta.env.VITE_API_URL || 'https://blah-subsequent-personal-synthetic.trycloudflare.com'
+const API_URL = import.meta.env.VITE_API_URL
+
+// Validate that API URL is configured
+if (!API_URL) {
+  throw new Error('VITE_API_URL environment variable is not set. Please check your .env file.')
+}
 
 // Create axios instance with default config
 const api = axios.create({

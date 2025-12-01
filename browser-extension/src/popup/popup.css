@@ -153,6 +153,59 @@ h1 {
   color: #10b981;
 }
 
+.configuration-section {
+  background: white;
+  padding: 16px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.configuration-section h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #1a1a1a;
+}
+
+.config-toggle {
+  margin-bottom: 12px;
+}
+
+.config-panel {
+  display: block;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 12px;
+}
+
+.config-panel.hidden {
+  display: none;
+}
+
+.config-panel .input-group {
+  flex-direction: column;
+  align-items: stretch;
+  margin-bottom: 12px;
+}
+
+.config-panel .input-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 6px;
+}
+
+.config-panel .input-group input {
+  width: 100%;
+}
+
+.config-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
 .btn {
   padding: 10px 16px;
   border: none;
@@ -179,6 +232,31 @@ h1 {
 
 .btn-secondary:hover {
   background: #d1d5db;
+}
+
+.btn-success {
+  background: #10b981;
+  color: white;
+  flex: 1;
+}
+
+.btn-success:hover {
+  background: #059669;
+}
+
+.btn-danger {
+  background: #ef4444;
+  color: white;
+  flex: 1;
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 footer {

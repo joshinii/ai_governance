@@ -8,6 +8,7 @@ class Auth0Client {
     this.domain = config.AUTH0_DOMAIN;
     this.clientId = config.AUTH0_CLIENT_ID;
     this.audience = config.AUTH0_API_AUDIENCE;
+    this.apiUrl = config.API_URL;  // Backend API URL for token and logout endpoints
     this.redirectUri = chrome.runtime.getURL('src/auth/auth-callback.html');
     this.tokenKey = 'auth0_token';
     this.expiryKey = 'auth0_token_expiry';
@@ -135,8 +136,9 @@ class Auth0Client {
 
       // In a real application, you would exchange the code for a token on the backend
       // For now, we'll use the code to fetch a token via a backend endpoint
+      const tokenEndpoint = `${this.apiUrl}/auth/token`;
 
-      const response = await fetch('https://blah-subsequent-personal-synthetic.trycloudflare.com/auth/token', {
+      const response = await fetch(tokenEndpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -174,7 +176,8 @@ class Auth0Client {
     try {
       const token = await this.getToken();
       if (token) {
-        await fetch('https://blah-subsequent-personal-synthetic.trycloudflare.com/users/logout', {
+        const logoutEndpoint = `${this.apiUrl}/users/logout`;
+        await fetch(logoutEndpoint, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`

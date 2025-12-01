@@ -16,16 +16,16 @@ class Settings(BaseSettings):
     DATABASE_URL: str
 
     # Auth0 Configuration
-    AUTH0_DOMAIN: str = "dev-y75lecimhanaeqy7.us.auth0.com"
-    AUTH0_API_AUDIENCE: str = "https://blah-subsequent-personal-synthetic.trycloudflare.com"
+    AUTH0_DOMAIN: str
+    AUTH0_API_AUDIENCE: str
 
     # Secret key for API key validation (change in production)
     API_KEY_SECRET: str = "your-secret-key-change-this-in-production"
 
     # CORS allowed origins (comma-separated list)
     # Update this in backend/.env when ngrok URLs change
-    CORS_ORIGINS: str = "https://surrey-tide-neutral-presence.trycloudflare.com,http://localhost:5173,http://localhost:3000"
-    ALLOWED_ORIGINS: str = "https://surrey-tide-neutral-presence.trycloudflare.com,http://localhost:5173,http://localhost:3000"
+    CORS_ORIGINS: str
+    ALLOWED_ORIGINS: str
 
     # Server configuration
     HOST: str = "0.0.0.0"
