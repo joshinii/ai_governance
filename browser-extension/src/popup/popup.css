@@ -101,6 +101,58 @@ h1 {
   margin-bottom: 16px;
 }
 
+.settings-section {
+  background: white;
+  padding: 16px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.settings-section h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #1a1a1a;
+}
+
+.input-group {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.input-group label {
+  display: none; /* Hidden visually but good for a11y if we wanted */
+}
+
+.input-group input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 13px;
+  outline: none;
+}
+
+.input-group input:focus {
+  border-color: #2563eb;
+}
+
+.btn-small {
+  padding: 8px 12px;
+  background: #2563eb;
+  color: white;
+  font-size: 12px;
+}
+
+.status-message {
+  font-size: 11px;
+  margin-top: 6px;
+  min-height: 14px;
+  color: #10b981;
+}
+
 .btn {
   padding: 10px 16px;
   border: none;

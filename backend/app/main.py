@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .core.config import settings
 from .models.database import Base, engine
-from .api.routes import usage, policies, analytics, prompts, prompt_history, prompt_logs, users
+from .api.routes import usage, policies, analytics, prompts, prompt_history, prompt_logs, users, alerts
 import os
 from fastapi import Depends
 from .core.security import get_current_user
@@ -85,6 +85,7 @@ app.include_router(analytics.router, dependencies=[Depends(get_current_user)])
 app.include_router(prompts.router, dependencies=[Depends(get_current_user)])
 app.include_router(prompt_history.router, dependencies=[Depends(get_current_user)])
 app.include_router(prompt_logs.router, dependencies=[Depends(get_current_user)])
+app.include_router(alerts.router, dependencies=[Depends(get_current_user)])
 
 @app.get("/", tags=["Health"])
 async def root():
@@ -108,14 +109,6 @@ async def health_check():
     Health check endpoint
     
     Returns the health status of the API and database connection.
-    
-    **Example Response:**
-```json
-    {
-      "status": "healthy",
-      "database": "connected"
-    }
-```
     """
     from sqlalchemy import text
     from .api.routes.usage import get_db

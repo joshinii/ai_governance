@@ -1,29 +1,19 @@
 /**
  * Content script for Google Gemini
- * Simplified - uses same interception logic
+ * Uses shared ContentCore
  */
 
 const config = CONFIG;
-const piiDetector = new PIIDetector();
-const apiClient = new APIClient(config);
-const variantModal = new VariantModal();
 
-console.log('[AI Governance] Gemini monitor active');
+const PLATFORM_CONFIG = {
+  name: 'gemini',
+  selectors: {
+    // Gemini uses a contenteditable div
+    // Try multiple selectors for better compatibility
+    input: 'rich-textarea div[contenteditable="true"], div.ql-editor[contenteditable="true"], div[contenteditable="true"][role="textbox"], div[contenteditable="true"]',
+    // Send button variations
+    sendButton: 'button[aria-label*="Send"], button[aria-label*="submit"], button.send-button, button[type="submit"]'
+  }
+};
 
-// Similar implementation to ChatGPT/Claude
-// Adjust selectors for Gemini's UI
-
-function initialize() {
-  console.log('[AI Governance] Gemini monitor initialized (basic)');
-  
-  // Note: Gemini's UI may vary - this is a placeholder
-  // In production, would need specific selectors for Gemini
-  
-  alert('[AI Governance] Monitoring active on Gemini. Full integration coming soon.');
-}
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initialize);
-} else {
-  initialize();
-}
+const core = new ContentCore(PLATFORM_CONFIG);

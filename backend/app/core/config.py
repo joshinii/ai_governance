@@ -31,6 +31,14 @@ class Settings(BaseSettings):
     HOST: str = "0.0.0.0"
     PORT: int = 8000
     
+    # Supermemory Configuration
+    SUPERMEMORY_API_URL: str = "https://api.supermemory.ai"
+    SUPERMEMORY_API_KEY: str  # No default - MUST be set in .env
+    
+    # Gemini API Configuration
+    GEMINI_API_KEY: str  # No default - MUST be set in .env
+    GEMINI_MODEL: str = "gemini-2.0-flash-lite"
+    
     class Config:
         env_file = ".env"
     
