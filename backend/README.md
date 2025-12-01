@@ -24,10 +24,10 @@ cp .env.example .env
 docker-compose up -d
 
 # Check if running
-curl http://localhost:8000/health
+curl https://blah-subsequent-personal-synthetic.trycloudflare.com/health
 ```
 
-The API will be available at `http://localhost:8000`
+The API will be available at `https://blah-subsequent-personal-synthetic.trycloudflare.com`
 
 #### Option B: Manual Setup
 
@@ -66,8 +66,8 @@ Tables are created automatically on first run. Schema includes:
 ### 4. API Documentation
 
 Once running, visit:
-- Swagger UI: `http://localhost:8000/docs`
-- ReDoc: `http://localhost:8000/redoc`
+- Swagger UI: `https://blah-subsequent-personal-synthetic.trycloudflare.com/docs`
+- ReDoc: `https://blah-subsequent-personal-synthetic.trycloudflare.com/redoc`
 
 ### 5. Testing the API
 
@@ -76,7 +76,7 @@ Once running, visit:
 export API_KEY="dev-secret-key-change-in-production"
 
 # Create a usage log
-curl -X POST http://localhost:8000/usage-logs/ \
+curl -X POST https://blah-subsequent-personal-synthetic.trycloudflare.com/usage-logs/ \
   -H "X-API-Key: $API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -87,13 +87,13 @@ curl -X POST http://localhost:8000/usage-logs/ \
   }'
 
 # Get usage analytics
-curl http://localhost:8000/analytics/usage?days=7 \
+curl https://blah-subsequent-personal-synthetic.trycloudflare.com/analytics/usage?days=7 \
   -H "X-API-Key: $API_KEY"
 ```
 
 ### 6. Connecting from Browser Extension
 
-Extension should send requests to `http://localhost:8000` with header:
+Extension should send requests to `https://blah-subsequent-personal-synthetic.trycloudflare.com` with header:
 ```
 X-API-Key: dev-secret-key-change-in-production
 ```
@@ -304,7 +304,7 @@ When users type a prompt in the browser extension:
 ### Example API Call
 
 ```bash
-curl "http://localhost:8000/prompt-variants/?original_prompt=make%20this%20better" \
+curl "https://blah-subsequent-personal-synthetic.trycloudflare.com/prompt-variants/?original_prompt=make%20this%20better" \
   -H "X-API-Key: dev-secret-key-change-in-production"
 ```
 

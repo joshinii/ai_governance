@@ -1,0 +1,35 @@
+{
+  "frontend": {
+    "url": "https://surrey-tide-neutral-presence.trycloudflare.com",
+    "port": 3000,
+    "auth0": {
+      "domain": "dev-y75lecimhanaeqy7.us.auth0.com",
+      "clientId": "b2Q5VZ2pv4Ve8YralLn1dUtAHeEnpJGl",
+      "audience": "https://surrey-tide-neutral-presence.trycloudflare.com"
+    }
+  },
+  "backend": {
+    "url": "https://blah-subsequent-personal-synthetic.trycloudflare.com/api",
+    "port": 8000,
+    "localUrl": "http://localhost:8000",
+    "allowedOrigins": [
+      "https://surrey-tide-neutral-presence.trycloudflare.com",
+      "http://localhost:5173",
+      "http://localhost:3000"
+    ]
+  },
+  "development": {
+    "frontend": {
+      "url": "http://localhost:5173",
+      "auth0": {
+        "audience": "https://blah-subsequent-personal-synthetic.trycloudflare.com"
+      }
+    },
+    "backend": {
+      "allowedOrigins": [
+        "http://localhost:5173",
+        "http://localhost:3000"
+      ]
+    }
+  }
+}

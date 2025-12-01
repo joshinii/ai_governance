@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(where psql:*)",
+      "Bash(docker:*)",
+      "Bash(docker-compose up:*)",
+      "Bash(python -m pip install:*)",
+      "Bash(uvicorn:*)",
+      "Bash(findstr:*)",
+      "Bash(docker-compose down:*)",
+      "Bash(timeout 30 powershell:*)",
+      "Bash(git fetch:*)",
+      "Bash(git config:*)",
+      "Bash(ssh:*)",
+      "Bash(git merge:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

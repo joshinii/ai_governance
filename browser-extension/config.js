@@ -1,29 +1,25 @@
 /**
  * Configuration for the extension
- * Update these values based on your backend deployment
+ * Update these values based on your Auth0 and backend deployment
  */
 
 const CONFIG = {
   // Backend API URL
-  API_URL: 'http://localhost:8000',
-  
-  // API Key for authentication
-  API_KEY: 'dev-secret-key-change-in-production',
-  
-  // User email (in production, get from SSO or login)
-  // For POC, set this to test user email
-  USER_EMAIL: 'joshini.mn@gmail.com',
-  
-  // Organization ID
-  ORG_ID: 1,
-  
+  API_URL: 'https://blah-subsequent-personal-synthetic.trycloudflare.com',
+
+  // Auth0 Configuration
+  AUTH0_DOMAIN: 'dev-y75lecimhanaeqy7.us.auth0.com',
+  AUTH0_CLIENT_ID: 'b2Q5VZ2pv4Ve8YralLn1dUtAHeEnpJGl',
+  AUTH0_API_AUDIENCE: 'https://blah-subsequent-personal-synthetic.trycloudflare.com',
+
   // Feature flags
   FEATURES: {
     PII_DETECTION: true,
     PROMPT_VARIANTS: true,
-    USAGE_LOGGING: true
+    USAGE_LOGGING: true,
+    PROMPT_HISTORY: true
   },
-  
+
   // Supported AI tools
   AI_TOOLS: {
     'chat.openai.com': 'chatgpt',

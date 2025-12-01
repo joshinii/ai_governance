@@ -6,8 +6,8 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Search, Filter, Calendar, TrendingUp, AlertCircle, Check, X } from 'lucide-react';
-import api from '../services/api';
+import { Search, Filter, Calendar, TrendingUp, AlertCircle, Check, X, Trash2 } from 'lucide-react';
+import { promptHistoryApi } from '../services/api';
 
 function PromptHistory() {
   const [history, setHistory] = useState([]);
@@ -31,18 +31,15 @@ function PromptHistory() {
   const fetchHistory = async () => {
     try {
       setLoading(true);
-      const params = new URLSearchParams({
+      const response = await promptHistoryApi.getHistory({
         days: daysFilter,
         page: page,
-        page_size: 20
+        page_size: 20,
+        tool: toolFilter || undefined,
+        had_pii: piiFilter ? (piiFilter === 'true') : undefined
       });
-      
-      if (toolFilter) params.append('tool', toolFilter);
-      if (piiFilter) params.append('had_pii', piiFilter);
-      
-      const response = await api.get(`/prompt-history/?${params}`);
-      setHistory(response.data.items);
-      setTotalPages(Math.ceil(response.data.total / 20));
+      setHistory(response.items);
+      setTotalPages(Math.ceil(response.total / 20));
     } catch (error) {
       console.error('Failed to fetch history:', error);
     } finally {
@@ -52,8 +49,10 @@ function PromptHistory() {
 
   const fetchStats = async () => {
     try {
-      const response = await api.get(`/prompt-history/stats?days=${daysFilter}`);
-      setStats(response.data);
+      const response = await promptHistoryApi.getStats({
+        days: daysFilter
+      });
+      setStats(response);
     } catch (error) {
       console.error('Failed to fetch stats:', error);
     }
@@ -69,6 +68,20 @@ function PromptHistory() {
     if (delta > 20) return '#10b981'; // green
     if (delta > 0) return '#f59e0b'; // amber
     return '#ef4444'; // red
+  };
+
+  const handleDeletePrompt = async (promptId) => {
+    if (!window.confirm('Are you sure you want to delete this prompt history entry? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      await promptHistoryApi.delete(promptId);
+      setHistory(history.filter(h => h.id !== promptId));
+      setSelectedPrompt(null);
+    } catch (error) {
+      alert('Failed to delete prompt history: ' + error.message);
+    }
   };
 
   return (
@@ -510,6 +523,51 @@ function PromptHistory() {
                 <strong style={{ color: '#dc2626' }}>⚠️ PII Detected:</strong> {selectedPrompt.pii_types.join(', ')}
               </div>
             )}
+
+            {/* Action Buttons */}
+            <div style={{
+              marginTop: '24px',
+              paddingTop: '16px',
+              borderTop: '1px solid #e5e7eb',
+              display: 'flex',
+              gap: '12px',
+              justifyContent: 'flex-end'
+            }}>
+              <button
+                onClick={() => setSelectedPrompt(null)}
+                style={{
+                  padding: '10px 16px',
+                  background: '#e5e7eb',
+                  color: '#374151',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}
+              >
+                Close
+              </button>
+              <button
+                onClick={() => handleDeletePrompt(selectedPrompt.id)}
+                style={{
+                  padding: '10px 16px',
+                  background: '#ef4444',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}
+              >
+                <Trash2 size={16} />
+                Delete Entry
+              </button>
+            </div>
           </div>
         </div>
       )}

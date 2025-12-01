@@ -19,7 +19,7 @@ async function loadStats() {
 // View dashboard button
 document.getElementById('view-dashboard').addEventListener('click', () => {
   chrome.tabs.create({
-    url: 'http://localhost:3000'
+    url: 'https://surrey-tide-neutral-presence.trycloudflare.com'
   });
 });
 
@@ -30,9 +30,9 @@ document.getElementById('test-connection').addEventListener('click', async () =>
   button.disabled = true;
 
   try {
-    const response = await fetch('http://localhost:8000/health', {
+    const response = await fetch('https://blah-subsequent-personal-synthetic.trycloudflare.com/health', {
       headers: {
-        'X-API-Key': 'dev-secret-key-change-in-production'
+        'Content-Type': 'application/json'
       }
     });
 
@@ -43,12 +43,84 @@ document.getElementById('test-connection').addEventListener('click', async () =>
       alert('❌ Backend connection failed!\n\nStatus: ' + response.status);
     }
   } catch (error) {
-    alert('❌ Cannot reach backend!\n\nMake sure backend is running on http://localhost:8000\n\nError: ' + error.message);
+    alert('❌ Cannot reach backend!\n\nMake sure backend is running on https://blah-subsequent-personal-synthetic.trycloudflare.com\n\nError: ' + error.message);
   } finally {
     button.textContent = 'Test Backend Connection';
     button.disabled = false;
   }
 });
+
+// Login button
+document.getElementById('login-button').addEventListener('click', async () => {
+  const button = document.getElementById('login-button');
+  button.textContent = 'Logging in...';
+  button.disabled = true;
+
+  try {
+    // Send message to background script to trigger Auth0 login
+    const result = await chrome.runtime.sendMessage({ type: 'AUTH0_LOGIN' });
+
+    if (result.success) {
+      alert('✅ Login successful!\n\nYou can now use the extension.');
+      loadStats();
+    } else {
+      alert('❌ Login failed!\n\nError: ' + result.error);
+    }
+  } catch (error) {
+    alert('❌ Login error!\n\nError: ' + error.message);
+  } finally {
+    button.textContent = 'Login with Auth0';
+    button.disabled = false;
+  }
+});
+
+// Logout button
+document.getElementById('logout-button').addEventListener('click', async () => {
+  const button = document.getElementById('logout-button');
+  button.textContent = 'Logging out...';
+  button.disabled = true;
+
+  try {
+    // Send message to background script to trigger logout
+    await chrome.runtime.sendMessage({ type: 'AUTH0_LOGOUT' });
+    alert('✅ Logged out successfully!');
+    updateAuthUI();
+    loadStats();
+  } catch (error) {
+    alert('❌ Logout error!\n\nError: ' + error.message);
+  } finally {
+    button.textContent = 'Logout';
+    button.disabled = false;
+  }
+});
+
+// Update UI based on authentication status
+async function updateAuthUI() {
+  try {
+    const isAuthenticated = await chrome.runtime.sendMessage({ type: 'IS_AUTHENTICATED' });
+    const loginButton = document.getElementById('login-button');
+    const logoutButton = document.getElementById('logout-button');
+    const userInfo = document.getElementById('user-info');
+
+    if (isAuthenticated.authenticated) {
+      loginButton.style.display = 'none';
+      logoutButton.style.display = 'block';
+      if (isAuthenticated.userInfo) {
+        userInfo.textContent = `Logged in as: ${isAuthenticated.userInfo.email}`;
+        userInfo.style.display = 'block';
+      }
+    } else {
+      loginButton.style.display = 'block';
+      logoutButton.style.display = 'none';
+      userInfo.style.display = 'none';
+    }
+  } catch (error) {
+    console.error('Failed to update auth UI:', error);
+  }
+}
+
+// Update auth UI on load
+updateAuthUI();
 
 // Settings link
 document.getElementById('settings-link').addEventListener('click', (e) => {

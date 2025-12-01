@@ -3,12 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 function Login() {
-  const { isAuthenticated, loginWithRedirect, user } = useAuth();
+  const { isAuthenticated, loginWithRedirect } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/dashboard');
+      navigate('/dashboard', { replace: true });
     }
   }, [isAuthenticated, navigate]);
 
@@ -36,7 +36,7 @@ function Login() {
         </p>
         
         <button
-          onClick={loginWithRedirect}
+          onClick={() => loginWithRedirect()}
           style={{
             width: '100%',
             padding: '14px',

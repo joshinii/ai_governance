@@ -1,25 +1,31 @@
 /**
  * API Client for communicating with backend
- * Handles all HTTP requests to the governance backend
+ * Handles all HTTP requests to the governance backend using Auth0 JWT
  */
 
 class APIClient {
-  constructor(config) {
+  constructor(config, auth0Client) {
     this.baseURL = config.API_URL;
-    this.apiKey = config.API_KEY;
-    this.userEmail = config.USER_EMAIL;
+    this.auth0Client = auth0Client;
   }
 
   /**
-   * Make authenticated request to backend
+   * Make authenticated request to backend with Auth0 JWT
    * @private
    */
   async _request(endpoint, options = {}) {
     const url = `${this.baseURL}${endpoint}`;
-    
+
+    // Get Auth0 JWT token
+    const token = await this.auth0Client.getToken();
+
+    if (!token) {
+      throw new Error('Not authenticated. Please login first.');
+    }
+
     const headers = {
       'Content-Type': 'application/json',
-      'X-API-Key': this.apiKey,
+      'Authorization': `Bearer ${token}`,
       ...options.headers
     };
 
@@ -29,6 +35,11 @@ class APIClient {
     });
 
     if (!response.ok) {
+      if (response.status === 401) {
+        // Token expired or invalid
+        await this.auth0Client.clearToken();
+        throw new Error('Authentication expired. Please login again.');
+      }
       throw new Error(`API request failed: ${response.status} ${response.statusText}`);
     }
 
@@ -37,13 +48,13 @@ class APIClient {
 
   /**
    * Log AI tool usage
+   * User email is extracted from JWT token
    * @param {Object} data - Usage data
    */
   async logUsage(data) {
     return this._request('/usage-logs/', {
       method: 'POST',
       body: JSON.stringify({
-        user_email: this.userEmail,
         tool: data.tool,
         prompt_hash: data.promptHash,
         risk_level: data.riskLevel || 'low'
@@ -68,30 +79,37 @@ class APIClient {
   }
 
   /**
-   * Log which prompt variant user chose
-   * @param {Object} data - Prompt selection data
+   * Log prompt history entry
+   * User email is extracted from JWT token
+   * @param {Object} data - Prompt history data
    */
-  async logPromptChoice(data) {
-    return this._request('/prompt-variants/log', {
+  async logPromptHistory(data) {
+    return this._request('/prompt-history/', {
       method: 'POST',
       body: JSON.stringify({
-        user_email: this.userEmail,
         original_prompt: data.originalPrompt,
-        chosen_variant: data.chosenVariant,
-        variants: data.variants
+        final_prompt: data.finalPrompt,
+        tool: data.tool,
+        variants_offered: data.variantsOffered,
+        variant_selected: data.variantSelected,
+        original_score: data.originalScore,
+        final_score: data.finalScore,
+        had_pii: data.hadPII,
+        pii_types: data.piiTypes,
+        session_id: data.sessionId
       })
     });
   }
 
   /**
    * Create compliance alert
+   * User email is extracted from JWT token
    * @param {Object} data - Alert data
    */
   async createAlert(data) {
     return this._request('/alerts', {
       method: 'POST',
       body: JSON.stringify({
-        user_email: this.userEmail,
         violation_type: data.violationType,
         details: data.details
       })

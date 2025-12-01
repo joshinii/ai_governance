@@ -1,0 +1,48 @@
+ M backend/.env.example
+ M backend/README.md
+ M backend/app/api/routes/analytics.py
+ M backend/app/api/routes/policies.py
+ M backend/app/api/routes/prompt_history.py
+ M backend/app/api/routes/prompts.py
+ M backend/app/api/routes/usage.py
+ M backend/app/core/config.py
+ M backend/app/core/security.py
+ M backend/app/main.py
+ M backend/app/models/database.py
+ M backend/app/models/schemas.py
+ M backend/docker-compose.yml
+ M backend/requirements.txt
+ M browser-extension/INSTALLATION.md
+ M browser-extension/README.md
+ M browser-extension/config.js
+ M browser-extension/src/background/service-worker.js
+ M browser-extension/src/content/chatgpt.js
+ M browser-extension/src/popup/popup.js
+ M browser-extension/src/shared/api-client.js
+ M dashboard/.env.example
+ M dashboard/README.md
+ M dashboard/package.json
+ M dashboard/src/App.jsx
+ M dashboard/src/components/Layout.jsx
+ M dashboard/src/contexts/AuthContext.jsx
+ M dashboard/src/index.css
+ M dashboard/src/pages/Login.jsx
+ M dashboard/src/pages/PromptHistory.jsx
+ M dashboard/src/services/api.js
+ M dashboard/vite.config.js
+?? .claude/
+?? backend/app/api/routes/prompt_logs.py
+?? backend/app/api/routes/users.py
+?? backend/app/core/permissions.py
+?? backend/node_modules/
+?? backend/package-lock.json
+?? backend/package.json
+?? backups/
+?? browser-extension/src/auth/
+?? browser-extension/src/shared/auth0-client.js
+?? config.json
+?? dashboard/src/components/ApiProvider.jsx
+?? dashboard/src/pages/RoleSetup.jsx
+?? dashboard/src/pages/TeamManagement.jsx
+?? dashboard/src/pages/UserManagement.jsx
+?? dashboard/tailwind.config.js

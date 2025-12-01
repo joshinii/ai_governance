@@ -22,7 +22,7 @@ React-based admin dashboard for monitoring and controlling enterprise AI usage.
 ## Prerequisites
 
 - Node.js 18+ and npm
-- Backend API running on `http://localhost:8000`
+- Backend API running on `https://blah-subsequent-personal-synthetic.trycloudflare.com`
 
 ## Setup Instructions
 
@@ -44,7 +44,7 @@ cp .env.example .env
 
 **`.env` file:**
 ```env
-VITE_API_URL=http://localhost:8000
+VITE_API_URL=https://blah-subsequent-personal-synthetic.trycloudflare.com
 VITE_API_KEY=dev-secret-key-change-in-production
 ```
 
@@ -54,7 +54,7 @@ VITE_API_KEY=dev-secret-key-change-in-production
 npm run dev
 ```
 
-Dashboard will be available at `http://localhost:3000`
+Dashboard will be available at `https://surrey-tide-neutral-presence.trycloudflare.com`
 
 ### 4. Build for Production
 
@@ -113,7 +113,7 @@ All requests include the API key in the `X-API-Key` header.
 
 1. Start backend: `cd ../backend && docker-compose up`
 2. Start dashboard: `npm run dev`
-3. Access at `http://localhost:3000`
+3. Access at `https://surrey-tide-neutral-presence.trycloudflare.com`
 
 ### Adding New Pages
 
@@ -128,7 +128,7 @@ Edit `src/services/api.js` to add/modify API endpoints.
 ## Troubleshooting
 
 **CORS errors:**
-- Ensure backend `ALLOWED_ORIGINS` includes `http://localhost:3000`
+- Ensure backend `ALLOWED_ORIGINS` includes `https://surrey-tide-neutral-presence.trycloudflare.com`
 - Check backend is running
 
 **API key errors:**

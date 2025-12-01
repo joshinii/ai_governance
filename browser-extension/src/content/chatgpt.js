@@ -1,5 +1,5 @@
 const config = {
-  API_URL: 'http://localhost:8000',
+  API_URL: 'https://blah-subsequent-personal-synthetic.trycloudflare.com',
   API_KEY: 'dev-secret-key-change-in-production',
   USER_EMAIL: 'joshini.mn@gmail.com',
   ORG_ID: 1,
@@ -174,6 +174,20 @@ class APIClient {
         had_pii: data.hadPII,
         pii_types: data.piiTypes,
         session_id: SESSION_ID
+      })
+    });
+  }
+
+  async logPromptLog(data) {
+    return this._request('/prompt-logs/', {
+      method: 'POST',
+      body: JSON.stringify({
+        user_email: this.userEmail,
+        original_prompt: data.originalPrompt,
+        chosen_variant: data.chosenVariant,
+        variants: data.variants,
+        variant_index: data.variantIndex,
+        improvement_score: data.improvementScore
       })
     });
   }
@@ -558,6 +572,22 @@ async function interceptPrompt(event) {
         console.log('[AI Governance] Prompt history logged');
       } catch (error) {
         console.error('[AI Governance] History logging error:', error);
+      }
+    }
+
+    // ALSO log to prompt_logs for analytics (if variant was offered)
+    if (variantsOffered && variantsOffered.length > 0) {
+      try {
+        await apiClient.logPromptLog({
+          originalPrompt: originalPrompt,
+          chosenVariant: chosenPrompt,
+          variants: variantsOffered,
+          variantIndex: variantIndex,
+          improvementScore: finalScore - originalScore
+        });
+        console.log('[AI Governance] Prompt log recorded');
+      } catch (error) {
+        console.error('[AI Governance] Prompt log error:', error);
       }
     }
 
