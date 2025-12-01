@@ -46,10 +46,56 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     case 'GET_STATS':
       sendResponse(stats);
       break;
+
+    case 'PROXY_API_REQUEST':
+      handleApiRequest(message.data)
+        .then(response => sendResponse({ success: true, data: response }))
+        .catch(error => sendResponse({ success: false, error: error.message }));
+      return true; // Keep channel open for async response
   }
 
   return true;
 });
+
+async function handleApiRequest(requestData) {
+  const { endpoint, options, config } = requestData;
+  const url = `${config.API_URL}${endpoint}`;
+  
+  console.log('[AI Governance] ===== PROXY REQUEST =====');
+  console.log('[AI Governance] URL:', url);
+  console.log('[AI Governance] Method:', options.method || 'GET');
+  if (options.body) {
+    console.log('[AI Governance] Body:', JSON.parse(options.body));
+  }
+  
+  const headers = {
+    'Content-Type': 'application/json',
+    'X-API-Key': config.API_KEY,
+    ...options.headers
+  };
+
+  try {
+    const response = await fetch(url, {
+      ...options,
+      headers
+    });
+
+    console.log('[AI Governance] Response status:', response.status);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('[AI Governance] Response error:', errorText);
+      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    console.log('[AI Governance] Response data:', data);
+    return data;
+  } catch (error) {
+    console.error('[AI Governance] Proxy request failed:', error);
+    throw error;
+  }
+}
 
 function saveStats() {
   chrome.storage.local.set({ stats: stats });

@@ -10,11 +10,31 @@ class VariantModal {
   }
 
   /**
+   * Show loading state
+   */
+  showLoading() {
+    this._createModal({ loading: true });
+  }
+
+  /**
+   * Close modal programmatically
+   */
+  close() {
+    if (this.modal) {
+      this.modal.remove();
+      this.modal = null;
+    }
+  }
+
+  /**
    * Show modal with variants
    * @param {Object} data - Contains originalPrompt and variants
    * @returns {Promise<string>} Chosen prompt text
    */
   show(data) {
+    // If loading modal exists, remove it first
+    this.close();
+    
     return new Promise((resolve) => {
       this.resolve = resolve;
       this._createModal(data);
@@ -29,15 +49,44 @@ class VariantModal {
     // Create modal container
     this.modal = document.createElement('div');
     this.modal.id = 'ai-governance-modal';
-    this.modal.innerHTML = `
-      <div class="ai-gov-overlay">
-        <div class="ai-gov-modal">
+    
+    let content = '';
+    
+    if (data.loading) {
+        content = `
+          <div class="ai-gov-body" style="text-align: center; padding: 40px;">
+            <div class="ai-gov-spinner"></div>
+            <p style="margin-top: 16px; color: #666; font-weight: 500;">Improving your prompt...</p>
+          </div>
+        `;
+    } else {
+        content = `
           <div class="ai-gov-header">
             <h2>✨ Improve Your Prompt</h2>
             <button class="ai-gov-close">&times;</button>
           </div>
           
           <div class="ai-gov-body">
+            <div class="ai-gov-supermemory-section">
+              ${data.variants.some(v => v.used_supermemory) ? `
+                <div class="ai-gov-sm-active">
+                  <div class="ai-gov-sm-icon">🧠</div>
+                  <div class="ai-gov-sm-text">
+                    <div class="ai-gov-sm-title">Supermemory Active</div>
+                    <div class="ai-gov-sm-subtitle">Variants enhanced with your knowledge graph context</div>
+                  </div>
+                </div>
+              ` : `
+                <div class="ai-gov-sm-inactive">
+                  <div class="ai-gov-sm-icon">💭</div>
+                  <div class="ai-gov-sm-text">
+                    <div class="ai-gov-sm-title">No Context Found</div>
+                    <div class="ai-gov-sm-subtitle">Supermemory didn't find relevant history for this prompt</div>
+                  </div>
+                </div>
+              `}
+            </div>
+
             <div class="ai-gov-section">
               <label class="ai-gov-label">Your Original Prompt:</label>
               <div class="ai-gov-prompt ai-gov-original">
@@ -52,7 +101,12 @@ class VariantModal {
                 <div class="ai-gov-variant" data-index="${index}">
                   <div class="ai-gov-variant-header">
                     <span class="ai-gov-variant-title">Variant ${index + 1}</span>
-                    <span class="ai-gov-score">Score: ${variant.score}/100</span>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        ${variant.used_supermemory ? 
+                          `<span class="ai-gov-badge-sm" title="Enhanced with Supermemory context">🧠</span>` 
+                          : ''}
+                        <span class="ai-gov-score">Score: ${variant.score}/100</span>
+                    </div>
                   </div>
                   <div class="ai-gov-prompt">
                     ${this._escapeHtml(variant.text)}
@@ -73,6 +127,13 @@ class VariantModal {
               Keep Original
             </button>
           </div>
+        `;
+    }
+
+    this.modal.innerHTML = `
+      <div class="ai-gov-overlay">
+        <div class="ai-gov-modal">
+          ${content}
         </div>
       </div>
     `;
@@ -83,8 +144,10 @@ class VariantModal {
     // Add to page
     document.body.appendChild(this.modal);
 
-    // Add event listeners
-    this._attachListeners(data);
+    // Add event listeners only if not loading
+    if (!data.loading) {
+        this._attachListeners(data);
+    }
   }
 
   /**
@@ -240,6 +303,57 @@ class VariantModal {
         gap: 6px;
       }
 
+      .ai-gov-supermemory-section {
+        margin-bottom: 20px;
+        padding: 16px;
+        border-radius: 10px;
+        border: 2px solid #e5e7eb;
+      }
+
+      .ai-gov-sm-active, .ai-gov-sm-inactive {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .ai-gov-sm-active {
+        background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
+        border-color: #db2777;
+      }
+
+      .ai-gov-sm-inactive {
+        background: #f9fafb;
+        border-color: #e5e7eb;
+      }
+
+      .ai-gov-sm-icon {
+        font-size: 32px;
+        line-height: 1;
+      }
+
+      .ai-gov-sm-text {
+        flex: 1;
+      }
+
+      .ai-gov-sm-title {
+        font-weight: 600;
+        font-size: 15px;
+        margin-bottom: 4px;
+      }
+
+      .ai-gov-sm-active .ai-gov-sm-title {
+        color: #db2777;
+      }
+
+      .ai-gov-sm-inactive .ai-gov-sm-title {
+        color: #6b7280;
+      }
+
+      .ai-gov-sm-subtitle {
+        font-size: 13px;
+        color: #6b7280;
+      }
+
       .ai-gov-badge {
         display: inline-block;
         padding: 4px 10px;
@@ -248,6 +362,17 @@ class VariantModal {
         border-radius: 12px;
         font-size: 12px;
         font-weight: 500;
+      }
+
+      .ai-gov-badge-sm {
+        display: inline-block;
+        padding: 4px 10px;
+        background: #fdf2f8;
+        color: #db2777;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+        border: 1px solid #fbcfe8;
       }
 
       .ai-gov-btn {
@@ -282,11 +407,25 @@ class VariantModal {
       .ai-gov-btn-original:hover {
         background: #e5e7eb;
       }
+      
+      .ai-gov-spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #2563eb;
+        border-radius: 50%;
+        animation: ai-gov-spin 1s linear infinite;
+        margin: 0 auto;
+      }
+      
+      @keyframes ai-gov-spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
     `;
 
     document.head.appendChild(style);
   }
-
   /**
    * Attach event listeners
    * @private

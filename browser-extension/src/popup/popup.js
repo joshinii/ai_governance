@@ -53,11 +53,44 @@ document.getElementById('test-connection').addEventListener('click', async () =>
 // Settings link
 document.getElementById('settings-link').addEventListener('click', (e) => {
   e.preventDefault();
-  alert('Settings panel coming soon!\n\nFor now, edit config.js to change settings.');
+  // Scroll to settings
+  document.querySelector('.settings-section').scrollIntoView({ behavior: 'smooth' });
 });
 
-// Load stats on popup open
+// Load user email
+async function loadEmail() {
+  chrome.storage.local.get(['userEmail'], (result) => {
+    if (result.userEmail) {
+      document.getElementById('user-email').value = result.userEmail;
+    }
+  });
+}
+
+// Save user email
+document.getElementById('save-email').addEventListener('click', () => {
+  const email = document.getElementById('user-email').value.trim();
+  const status = document.getElementById('save-status');
+  
+  if (!email) {
+    status.textContent = 'Please enter a valid email';
+    status.style.color = '#dc2626';
+    return;
+  }
+  
+  chrome.storage.local.set({ userEmail: email }, () => {
+    status.textContent = 'Email saved successfully!';
+    status.style.color = '#10b981';
+    
+    // Clear status after 2 seconds
+    setTimeout(() => {
+      status.textContent = '';
+    }, 2000);
+  });
+});
+
+// Load stats and email on popup open
 loadStats();
+loadEmail();
 
 // Refresh stats every 2 seconds while popup is open
 setInterval(loadStats, 2000);

@@ -10,9 +10,8 @@ const CONFIG = {
   // API Key for authentication
   API_KEY: 'dev-secret-key-change-in-production',
   
-  // User email (in production, get from SSO or login)
-  // For POC, set this to test user email
-  USER_EMAIL: 'joshini.mn@gmail.com',
+  // User email (loaded from storage)
+  USER_EMAIL: null,
   
   // Organization ID
   ORG_ID: 1,
@@ -21,7 +20,8 @@ const CONFIG = {
   FEATURES: {
     PII_DETECTION: true,
     PROMPT_VARIANTS: true,
-    USAGE_LOGGING: true
+    USAGE_LOGGING: true,
+    PROMPT_HISTORY: true
   },
   
   // Supported AI tools

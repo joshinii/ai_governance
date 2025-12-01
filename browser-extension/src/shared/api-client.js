@@ -15,24 +15,36 @@ class APIClient {
    * @private
    */
   async _request(endpoint, options = {}) {
-    const url = `${this.baseURL}${endpoint}`;
-    
-    const headers = {
-      'Content-Type': 'application/json',
-      'X-API-Key': this.apiKey,
-      ...options.headers
-    };
-
-    const response = await fetch(url, {
-      ...options,
-      headers
-    });
-
-    if (!response.ok) {
-      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+    // Check if extension context is valid
+    if (typeof chrome === 'undefined' || !chrome.runtime || !chrome.runtime.sendMessage) {
+      const errorMsg = 'Extension context invalidated. Please reload this page completely (close and reopen tab).';
+      console.error('[AI Governance]', errorMsg);
+      throw new Error(errorMsg);
     }
 
-    return response.json();
+    // Send request to background script to bypass CSP
+    try {
+      const response = await chrome.runtime.sendMessage({
+        type: 'PROXY_API_REQUEST',
+        data: {
+          endpoint,
+          options,
+          config: {
+            API_URL: this.baseURL,
+            API_KEY: this.apiKey
+          }
+        }
+      });
+
+      if (!response.success) {
+        throw new Error(response.error);
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error('[AI Governance] API Request failed:', error);
+      throw error;
+    }
   }
 
   /**
@@ -61,6 +73,10 @@ class APIClient {
       original_prompt: originalPrompt,
       context: context || 'general'
     });
+    
+    if (this.userEmail) {
+        params.append('user_email', this.userEmail);
+    }
 
     return this._request(`/prompt-variants/?${params}`, {
       method: 'POST'
@@ -72,13 +88,15 @@ class APIClient {
    * @param {Object} data - Prompt selection data
    */
   async logPromptChoice(data) {
+    console.log('[AI Governance] Logging prompt choice:', data);
     return this._request('/prompt-variants/log', {
       method: 'POST',
       body: JSON.stringify({
         user_email: this.userEmail,
         original_prompt: data.originalPrompt,
         chosen_variant: data.chosenVariant,
-        variants: data.variants
+        variants: data.variants,
+        variant_index: data.variantIndex
       })
     });
   }
