@@ -33,4 +33,4 @@ jobs:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
         run: |
           cd backend
-          flyctl deploy --remote-only -a backend
+          flyctl deploy --remote-only -a ai-governance
