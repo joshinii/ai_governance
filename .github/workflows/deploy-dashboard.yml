@@ -19,6 +19,13 @@ jobs:
         run: npm install -g vercel
 
       - name: Deploy to Vercel
-        run: |
-          cd dashboard
-          vercel --prod --token ${{ secrets.VERCEL_TOKEN }}
+        run: vercel --prod --token ${{ secrets.VERCEL_TOKEN }}
+        env:
+          VITE_AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
+          VITE_AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
+          VITE_AUTH0_AUDIENCE: ${{ secrets.AUTH0_API_AUDIENCE }}
+          VITE_API_URL: https://aigovernancebackend.vercel.app
+          VITE_AUTH0_REDIRECT_URI: https://aigovernanceportal.vercel.app
+          VITE_HMR_HOST: aigovernanceportal.vercel.app
+          VITE_HMR_CLIENT_PORT: 443
+
