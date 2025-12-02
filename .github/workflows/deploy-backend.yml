@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - "backend/**"
 
 jobs:
   deploy-backend:
@@ -13,7 +11,12 @@ jobs:
     env:
       AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
       AUTH0_API_AUDIENCE: ${{ secrets.AUTH0_API_AUDIENCE }}
-      API_KEY_SECRET: ${{ secrets.API_KEY_SECRET }}
+      SUPERMEMORY_API_URL: ${{ secrets.SUPERMEMORY_API_URL }}
+      SUPERMEMORY_API_KEY: ${{ secrets.SUPERMEMORY_API_KEY }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      ALLOWED_ORIGINS: https://aigovernanceportal.vercel.app
+      CORS_ORIGINS: https://aigovernanceportal.vercel.app
+      GEMINI_MODEL: gemini-2.0-flash-lite
       FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
     steps:

@@ -28,8 +28,6 @@ services:
     environment:
       # Use 'postgres' hostname inside Docker network
       DATABASE_URL: postgresql://aigovernance:password123@postgres:5432/aigovernance_db
-      API_KEY_SECRET: dev-secret-key-change-in-production
-
       # CORS Configuration - UPDATE when ngrok URLs change
       CORS_ORIGINS: https://aigovernanceportal.vercel.app,http://localhost:5173,http://localhost:3000
       ALLOWED_ORIGINS: https://aigovernanceportal.vercel.app,http://localhost:5173,http://localhost:3000
