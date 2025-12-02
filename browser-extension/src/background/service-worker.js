@@ -76,12 +76,29 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       }
       return false;
 
+    case 'VALIDATE_TOKEN':
+      // Validate token before use (format, expiration, claims)
+      validateStoredToken(sendResponse);
+      return true;
+
     case 'API_REQUEST':
       // Forward API requests from content scripts; attach auth token and API key
       (async () => {
         try {
           const { method = 'GET', path = '/', body = null, headers = {} } = message.payload || {};
           const config = await getConfig();
+
+          // Validate and refresh token if needed before making API request
+          const tokenValidation = await validateAndRefreshToken(config);
+          if (!tokenValidation.valid) {
+            console.warn('[BG] Token invalid or expired:', tokenValidation.error);
+            sendResponse({
+              ok: false,
+              status: 401,
+              error: 'Authentication required. Please login.'
+            });
+            return;
+          }
 
           // Get stored token
           const items = await new Promise((resolve) => chrome.storage.local.get(['auth0_token'], resolve));
@@ -319,6 +336,151 @@ async function getUserInfo() {
  */
 async function getConfig() {
   return CONFIG;
+}
+
+/**
+ * Validate stored token (format, expiration, claims)
+ * Returns validation result
+ */
+function validateStoredToken(callback) {
+  (async () => {
+    try {
+      const items = await new Promise((resolve) =>
+        chrome.storage.local.get(['auth0_token', 'auth0_token_expiry'], resolve)
+      );
+
+      const token = items.auth0_token;
+      const expiry = items.auth0_token_expiry;
+
+      if (!token || !expiry) {
+        callback({
+          valid: false,
+          error: 'No token stored'
+        });
+        return;
+      }
+
+      // Check if expired
+      if (Date.now() > expiry) {
+        callback({
+          valid: false,
+          error: 'Token expired',
+          expiresIn: 0
+        });
+        return;
+      }
+
+      // Check JWT format
+      const parts = token.split('.');
+      if (parts.length !== 3) {
+        callback({
+          valid: false,
+          error: 'Invalid token format'
+        });
+        return;
+      }
+
+      // Token is valid
+      const expiresIn = Math.max(0, Math.floor((expiry - Date.now()) / 1000));
+      callback({
+        valid: true,
+        expiresIn: expiresIn,
+        expiresAt: expiry
+      });
+    } catch (error) {
+      console.error('[BG] Token validation error:', error);
+      callback({
+        valid: false,
+        error: error.message
+      });
+    }
+  })();
+}
+
+/**
+ * Validate and refresh token if needed before API calls
+ * Implements silent refresh strategy: try to refresh silently, then prompt if needed
+ */
+async function validateAndRefreshToken(config) {
+  try {
+    const items = await new Promise((resolve) =>
+      chrome.storage.local.get(['auth0_token', 'auth0_token_expiry'], resolve)
+    );
+
+    const token = items.auth0_token;
+    const expiry = items.auth0_token_expiry;
+
+    // No token stored
+    if (!token || !expiry) {
+      return {
+        valid: false,
+        error: 'No token available - login required',
+        needsLogin: true
+      };
+    }
+
+    // Check if expired
+    if (Date.now() > expiry) {
+      console.log('[BG] Token expired, will need re-authentication');
+      return {
+        valid: false,
+        error: 'Token expired - login required',
+        needsLogin: true
+      };
+    }
+
+    // Check if token expires soon (within 5 minutes)
+    const timeUntilExpiry = expiry - Date.now();
+    if (timeUntilExpiry < 5 * 60 * 1000) {
+      console.log('[BG] Token expires soon, attempting validation with backend');
+
+      // Validate with backend to ensure token is still valid
+      try {
+        const response = await fetch(`${config.API_URL}/auth/token-validate`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          console.warn('[BG] Backend validation failed:', response.statusText);
+          return {
+            valid: false,
+            error: 'Token validation failed',
+            needsLogin: true
+          };
+        }
+
+        const data = await response.json();
+        return {
+          valid: true,
+          expiresIn: data.expires_in || timeUntilExpiry / 1000
+        };
+      } catch (error) {
+        console.warn('[BG] Backend validation error:', error.message);
+        // Backend validation failure - require re-auth
+        return {
+          valid: false,
+          error: 'Cannot validate token',
+          needsLogin: true
+        };
+      }
+    }
+
+    // Token is valid
+    return {
+      valid: true,
+      expiresIn: Math.floor(timeUntilExpiry / 1000)
+    };
+  } catch (error) {
+    console.error('[BG] Token refresh error:', error);
+    return {
+      valid: false,
+      error: error.message
+    };
+  }
 }
 
 /**

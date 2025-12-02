@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .core.config import settings
 from .models.database import Base, engine
-from .api.routes import usage, policies, analytics, prompts, prompt_history, prompt_logs, users, alerts
+from .api.routes import usage, policies, analytics, prompts, prompt_history, prompt_logs, users, alerts, auth
 import os
 from fastapi import Depends
 from .core.security import get_current_user
@@ -78,6 +78,10 @@ app.add_middleware(
 )
 
 # Include routers
+# Auth routes (protected - require authentication)
+app.include_router(auth.router, dependencies=[Depends(get_current_user)])
+
+# Feature routes (all protected - require authentication)
 app.include_router(users.router, dependencies=[Depends(get_current_user)])
 app.include_router(usage.router, dependencies=[Depends(get_current_user)])
 app.include_router(policies.router, dependencies=[Depends(get_current_user)])

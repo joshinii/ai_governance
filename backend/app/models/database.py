@@ -67,7 +67,7 @@ class Team(Base):
 class User(Base):
     """User model with RBAC support"""
     __tablename__ = "users"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String(255), unique=True, nullable=False, index=True)
     name = Column(String(255))
@@ -76,6 +76,7 @@ class User(Base):
     team_id = Column(Integer, ForeignKey("teams.id"), nullable=True)
     reports_to = Column(Integer, ForeignKey("users.id"), nullable=True)
     org_id = Column(Integer, ForeignKey("organizations.id"))
+    auth0_sub = Column(String(255), nullable=True, index=True)  # Auth0 subject claim for identity linking
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     

@@ -101,6 +101,247 @@ class Auth0Client {
   }
 
   /**
+   * Validate token format (JWT structure)
+   * @param {string} token - JWT token to validate
+   * @returns {boolean} - True if token has valid JWT structure
+   */
+  validateTokenFormat(token) {
+    try {
+      const parts = token.split('.');
+      // JWT must have 3 parts separated by dots: header.payload.signature
+      if (parts.length !== 3) {
+        console.error('Invalid JWT format: wrong number of segments');
+        return false;
+      }
+
+      // Try to decode parts to ensure they're valid base64
+      atob(parts[0]); // header
+      atob(parts[1]); // payload
+      // parts[2] is signature, no need to decode
+
+      return true;
+    } catch (error) {
+      console.error('Invalid JWT format:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Validate token expiration
+   * @param {string} token - JWT token to check
+   * @returns {Object} - { valid: boolean, expiresIn: number, expiredAt: number }
+   */
+  validateTokenExpiration(token) {
+    try {
+      const parts = token.split('.');
+      if (parts.length !== 3) {
+        return { valid: false, expiresIn: 0, expiredAt: 0 };
+      }
+
+      const payload = JSON.parse(atob(parts[1]));
+      const currentTime = Math.floor(Date.now() / 1000);
+      const expiresAt = payload.exp;
+
+      if (!expiresAt) {
+        console.warn('Token missing exp claim');
+        return { valid: false, expiresIn: 0, expiredAt: 0 };
+      }
+
+      const expiresIn = expiresAt - currentTime;
+      const isValid = expiresIn > 0;
+
+      return {
+        valid: isValid,
+        expiresIn: Math.max(0, expiresIn),
+        expiredAt: expiresAt * 1000 // Convert to milliseconds
+      };
+    } catch (error) {
+      console.error('Failed to validate token expiration:', error);
+      return { valid: false, expiresIn: 0, expiredAt: 0 };
+    }
+  }
+
+  /**
+   * Validate token claims (audience, issuer, etc.)
+   * @param {string} token - JWT token to validate
+   * @returns {Promise<Object>} - Validation result
+   */
+  async validateTokenClaims(token) {
+    try {
+      const parts = token.split('.');
+      if (parts.length !== 3) {
+        return {
+          valid: false,
+          error: 'Invalid JWT format',
+          audience: null,
+          issuer: null
+        };
+      }
+
+      const payload = JSON.parse(atob(parts[1]));
+
+      // Check audience claim
+      const hasCorrectAudience = payload.aud === this.audience;
+      if (!hasCorrectAudience) {
+        console.warn(`Audience mismatch. Expected: ${this.audience}, Got: ${payload.aud}`);
+      }
+
+      // Check issuer claim
+      const expectedIssuer = `https://${this.domain}/`;
+      const hasCorrectIssuer = payload.iss === expectedIssuer;
+      if (!hasCorrectIssuer) {
+        console.warn(`Issuer mismatch. Expected: ${expectedIssuer}, Got: ${payload.iss}`);
+      }
+
+      return {
+        valid: hasCorrectAudience && hasCorrectIssuer,
+        error: !hasCorrectAudience ? 'Audience mismatch' : !hasCorrectIssuer ? 'Issuer mismatch' : null,
+        audience: payload.aud,
+        issuer: payload.iss,
+        email: payload.email,
+        sub: payload.sub
+      };
+    } catch (error) {
+      console.error('Failed to validate token claims:', error);
+      return {
+        valid: false,
+        error: error.message,
+        audience: null,
+        issuer: null
+      };
+    }
+  }
+
+  /**
+   * Validate token against backend /auth/token-validate endpoint
+   * Confirms token is valid server-side and has not been revoked
+   * @returns {Promise<Object>} - Validation result from backend
+   */
+  async validateTokenWithBackend(token = null) {
+    try {
+      if (!token) {
+        token = await this.getToken();
+        if (!token) {
+          return {
+            valid: false,
+            error: 'No token available'
+          };
+        }
+      }
+
+      const endpoint = `${this.apiUrl}/auth/token-validate`;
+      const response = await fetch(endpoint, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        return {
+          valid: false,
+          error: `Backend validation failed: ${response.statusText}`,
+          status: response.status
+        };
+      }
+
+      const data = await response.json();
+      return {
+        valid: true,
+        ...data
+      };
+    } catch (error) {
+      console.error('Backend token validation error:', error);
+      return {
+        valid: false,
+        error: error.message
+      };
+    }
+  }
+
+  /**
+   * Comprehensive token validation
+   * Validates format, expiration, claims, and backend validation
+   * @returns {Promise<Object>} - Complete validation result
+   */
+  async validateToken() {
+    const token = await this.getToken();
+
+    if (!token) {
+      return {
+        authenticated: false,
+        error: 'No token found',
+        formatValid: false,
+        expirationValid: false,
+        claimsValid: false,
+        backendValid: false
+      };
+    }
+
+    // Check format
+    const formatValid = this.validateTokenFormat(token);
+    if (!formatValid) {
+      return {
+        authenticated: false,
+        error: 'Invalid token format',
+        formatValid: false,
+        expirationValid: false,
+        claimsValid: false,
+        backendValid: false
+      };
+    }
+
+    // Check expiration
+    const expirationCheck = this.validateTokenExpiration(token);
+    if (!expirationCheck.valid) {
+      console.log('Token expired, attempting refresh...');
+      return {
+        authenticated: false,
+        error: 'Token expired',
+        formatValid: true,
+        expirationValid: false,
+        claimsValid: false,
+        backendValid: false,
+        expiresIn: expirationCheck.expiresIn
+      };
+    }
+
+    // Check claims
+    const claimsCheck = await this.validateTokenClaims(token);
+    if (!claimsCheck.valid) {
+      return {
+        authenticated: false,
+        error: claimsCheck.error,
+        formatValid: true,
+        expirationValid: true,
+        claimsValid: false,
+        backendValid: false
+      };
+    }
+
+    // Check with backend
+    const backendCheck = await this.validateTokenWithBackend(token);
+    if (!backendCheck.valid) {
+      console.warn('Backend validation failed:', backendCheck.error);
+      // Backend validation failure might indicate token revocation
+      // Consider clearing token and requiring re-authentication
+    }
+
+    return {
+      authenticated: true,
+      error: null,
+      formatValid: true,
+      expirationValid: true,
+      claimsValid: true,
+      backendValid: backendCheck.valid,
+      backendError: backendCheck.error,
+      expiresIn: expirationCheck.expiresIn,
+      userInfo: claimsCheck
+    };
+  }
+
+  /**
    * Initiate Auth0 authentication flow
    * Opens Auth0 login page in a popup
    * @returns {Promise<boolean>} - True if authentication successful
