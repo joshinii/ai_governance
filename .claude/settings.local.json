@@ -12,7 +12,9 @@
       "Bash(git fetch:*)",
       "Bash(git config:*)",
       "Bash(ssh:*)",
-      "Bash(git merge:*)"
+      "Bash(git merge:*)",
+      "Bash(git add:*)",
+      "Bash(ls -la \"C:\\Users\\joshi\\SJSU\\Entr-software\\ai-governance\\browser-extension\\src\\background\"\" 2>/dev/null || echo \"Directory does not exist \")"
     ],
     "deny": [],
     "ask": []

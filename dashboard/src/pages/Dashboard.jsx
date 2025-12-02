@@ -24,10 +24,14 @@ function Dashboard() {
         alertsApi.getAlerts({ resolved: false, days: 7 })
       ])
       setStats(usageStats)
-      setAlerts(alertsData.slice(0, 5)) // Show only 5 recent alerts
+      
+      // Handle both array and object responses
+      const alertsArray = Array.isArray(alertsData) ? alertsData : []
+      setAlerts(alertsArray.slice(0, 5)) // Show only 5 recent alerts
       setError(null)
     } catch (err) {
       setError('Failed to load dashboard data: ' + err.message)
+      setAlerts([]) // Set empty array on error to prevent .map error
     } finally {
       setLoading(false)
     }

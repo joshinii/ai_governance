@@ -25,7 +25,10 @@ async function initializeConfig() {
     } else {
       // Last resort defaults
       config = {
-        API_URL: 'https://sunshineless-beckett-axial.ngrok-free.dev',
+        API_URL: 'https://aigovernancebackend.vercel.app',
+        AUTH0_DOMAIN: 'dev-y75lecimhanaeqy7.us.auth0.com',
+        AUTH0_CLIENT_ID: 'WhzBlOdMwksEotPnSN7y7OJktRnUzi3u',
+        AUTH0_API_AUDIENCE: 'https://aigovernancebackend.vercel.app',
         API_KEY: 'dev-secret-key-change-in-production',
         USER_EMAIL: 'joshini.mn@gmail.com',
         ORG_ID: 1,
@@ -54,7 +57,9 @@ let lastProcessedPrompt = null;
 let lastProcessedTime = 0;
 
 // PII Detection
-class PIIDetector {
+// Guard against multiple content scripts defining the same class in the page
+if (typeof window.PIIDetector === 'undefined') {
+  class PIIDetector {
   constructor() {
     this.patterns = {
       email: {
@@ -108,6 +113,9 @@ class PIIDetector {
     };
   }
 }
+  // expose to page scope so other content scripts reuse the same class
+  window.PIIDetector = PIIDetector;
+}
 
 // Prompt Analyzer
 class PromptAnalyzer {
@@ -150,25 +158,28 @@ class PromptAnalyzer {
 
 // API Client
 class APIClient {
-  constructor(config) {
-    this.baseURL = config.API_URL;
-    this.apiKey = config.API_KEY;
-    this.userEmail = config.USER_EMAIL;
+  constructor() {
+    // Do not store tokens or API URLs in page scope. The background will handle requests.
   }
 
-  async _request(endpoint, options = {}) {
-    const url = `${this.baseURL}${endpoint}`;
-    const headers = {
-      'Content-Type': 'application/json',
-      'X-API-Key': this.apiKey,
-      ...options.headers
-    };
-
-    const response = await fetch(url, { ...options, headers });
-    if (!response.ok) {
-      throw new Error(`API request failed: ${response.status}`);
-    }
-    return response.json();
+  async _request(path, options = {}) {
+    // Send a message to the background to perform the request so it can attach auth headers
+    return new Promise((resolve, reject) => {
+      try {
+        chrome.runtime.sendMessage({ type: 'API_REQUEST', payload: {
+          method: options.method || 'GET',
+          path,
+          body: options.body || null,
+          headers: options.headers || {}
+        } }, (response) => {
+          if (!response) return reject(new Error('No response from background'));
+          if (!response.ok) return reject(new Error(`API request failed: ${response.status}`));
+          resolve(response.data);
+        });
+      } catch (err) {
+        reject(err);
+      }
+    });
   }
 
   async logUsage(data) {
@@ -244,9 +255,12 @@ class APIClient {
   }
 }
 
-const piiDetector = new PIIDetector();
+// Instantiate detector using the shared constructor exposed on `window`.
+// This avoids redeclaration when multiple content scripts are injected into the same page.
+const piiDetector = new window.PIIDetector();
 const promptAnalyzer = new PromptAnalyzer();
-const apiClient = new APIClient(config);
+// API client will forward requests to the background service worker which attaches auth
+const apiClient = new APIClient();
 
 function getPromptInput() {
   return document.querySelector('#prompt-textarea') ||
@@ -482,14 +496,102 @@ async function showVariantModal(data) {
   });
 }
 
+// ============================================
+// AUTHENTICATION BANNER (ADDED)
+// ============================================
+/**
+ * Show a login banner when user tries to use ChatGPT without authentication
+ */
+function showLoginBanner() {
+  // Check if banner already exists
+  if (document.getElementById('ai-gov-login-banner')) {
+    return;
+  }
+
+  const banner = document.createElement('div');
+  banner.id = 'ai-gov-login-banner';
+  banner.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    padding: 16px 24px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 14px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    z-index: 999999;
+  `;
+
+  banner.innerHTML = `
+    <div style="flex: 1;">
+      <strong>🔐 Authentication Required</strong><br>
+      <span style="font-size: 13px; opacity: 0.95;">Log in with Auth0 to use AI Governance monitoring. Click the extension icon to sign in.</span>
+    </div>
+    <button id="close-login-banner" style="
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    " onmouseover="this.style.background='rgba(255, 255, 255, 0.3)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.2)'">
+      Dismiss
+    </button>
+  `;
+
+  document.body.insertBefore(banner, document.body.firstChild);
+
+  // Add close handler
+  document.getElementById('close-login-banner').addEventListener('click', () => {
+    banner.remove();
+  });
+
+  // Auto-remove after 8 seconds
+  setTimeout(() => {
+    if (document.contains(banner)) {
+      banner.remove();
+    }
+  }, 8000);
+
+  console.log('[AI Governance] Login banner displayed');
+}
+
 // Main interception function
 async function interceptPrompt(event) {
+  // ============================================
+  // AUTHENTICATION CHECK (ADDED)
+  // ============================================
+  // Check if user is authenticated before allowing prompt interception
+  try {
+    const authState = await chrome.runtime.sendMessage({ type: 'IS_AUTHENTICATED' });
+    if (!authState.authenticated) {
+      console.log('[AI Governance] User not authenticated - showing login prompt');
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      // Show login banner
+      showLoginBanner();
+      return;
+    }
+  } catch (error) {
+    console.error('[AI Governance] Auth check error:', error);
+  }
+
   // Prevent multiple simultaneous interceptions
   if (isIntercepting) {
     console.log('[AI Governance] Already intercepting, ignoring duplicate event');
     return;
   }
-  
+
   const input = getPromptInput();
   if (!input) {
     console.log('[AI Governance] No input found');

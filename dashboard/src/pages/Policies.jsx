@@ -25,10 +25,13 @@ function Policies() {
     try {
       setLoading(true)
       const data = await policiesApi.getPolicies(1) // Org ID 1 for POC
-      setPolicies(data)
+      // Handle both array and object responses
+      const policiesArray = Array.isArray(data) ? data : []
+      setPolicies(policiesArray)
       setError(null)
     } catch (err) {
       setError('Failed to load policies: ' + err.message)
+      setPolicies([]) // Set empty array on error to prevent .length error
     } finally {
       setLoading(false)
     }

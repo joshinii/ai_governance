@@ -2,20 +2,27 @@
   "manifest_version": 3,
   "name": "AI Governance Monitor",
   "version": "1.0.0",
-  "description": "Enterprise AI usage monitoring and governance - tracks prompts, detects PII, and improves prompt quality",
+  "description": "Enterprise AI usage monitoring and governance - tracks prompts, detects PII, and improves prompt quality with Auth0 authentication",
   "permissions": [
     "storage",
-    "activeTab"
+    "activeTab",
+    "identity",
+    "tabs"
   ],
   "host_permissions": [
     "https://chat.openai.com/*",
+    "https://chatgpt.com/*",
     "https://claude.ai/*",
     "https://gemini.google.com/*",
     "https://copilot.microsoft.com/*",
-    "http://localhost:8000/*"
+    "http://localhost:8000/*",
+    "https://dev-y75lecimhanaeqy7.us.auth0.com/*",
+    "https://*.ngrok-free.dev/*",
+    "https://aigovernancebackend.vercel.app/*"
   ],
   "background": {
-    "service_worker": "src/background/service-worker.js"
+    "service_worker": "src/background/service-worker.js",
+    "type": "module"
   },
   "content_scripts": [
     {

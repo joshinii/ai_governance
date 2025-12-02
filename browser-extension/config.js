@@ -13,12 +13,12 @@
 
 const CONFIG = {
   // Backend API URL - Update in popup settings, not here
-  API_URL: 'https://sunshineless-beckett-axial.ngrok-free.dev',
+  API_URL: 'https://aigovernancebackend.vercel.app',
 
   // Auth0 Configuration - Update in popup settings, not here
   AUTH0_DOMAIN: 'dev-y75lecimhanaeqy7.us.auth0.com',
-  AUTH0_CLIENT_ID: 'p6onL1VwfnH2gHMjqjTw4pw16g2KnSZS',
-  AUTH0_API_AUDIENCE: 'https://sunshineless-beckett-axial.ngrok-free.dev',
+  AUTH0_CLIENT_ID: 'WhzBlOdMwksEotPnSN7y7OJktRnUzi3u',
+  AUTH0_API_AUDIENCE: 'https://aigovernancebackend.vercel.app',
 
   // Feature flags
   FEATURES: {
@@ -42,3 +42,6 @@ const CONFIG = {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = CONFIG;
 }
+
+// Export as ES module
+export default CONFIG;

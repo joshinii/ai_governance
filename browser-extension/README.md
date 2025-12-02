@@ -30,8 +30,8 @@ Chrome extension that monitors AI tool usage, detects PII, and improves prompt q
 ## Prerequisites
 
 - Chrome or Edge browser
-- Backend running on `https://blah-subsequent-personal-synthetic.trycloudflare.com`
-- Dashboard running on `https://surrey-tide-neutral-presence.trycloudflare.com`
+- Backend running on `https://aigovernancebackend.vercel.app`
+- Dashboard running on `https://aigovernanceportal.vercel.app`
 
 ## Installation
 
@@ -59,7 +59,7 @@ Edit `config.js` before loading:
 
 ```javascript
 const CONFIG = {
-  API_URL: 'https://blah-subsequent-personal-synthetic.trycloudflare.com',  // Your backend URL
+  API_URL: 'https://aigovernancebackend.vercel.app',  // Your backend URL
   API_KEY: 'your-api-key',           // Match backend API_KEY_SECRET
   USER_EMAIL: 'user@company.com',    // User's email
   ORG_ID: 1
@@ -250,7 +250,7 @@ Edit `src/shared/variant-modal.js`, look for `_injectStyles()` method.
 
 ```bash
 # Test backend manually
-curl https://blah-subsequent-personal-synthetic.trycloudflare.com/health \
+curl https://aigovernancebackend.vercel.app/health \
   -H "X-API-Key: dev-secret-key-change-in-production"
 
 # Should return: {"status": "healthy"}

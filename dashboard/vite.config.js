@@ -11,11 +11,11 @@ export default defineConfig({
     port: 3000,
     host: true,
     // allow TryCloudflare subdomains (frontend is served via trycloudflare)
-    allowedHosts: ['.trycloudflare.com'],    
+    allowedHosts: ['articulative-protozoonal-emersyn.ngrok-free.dev','*'],    
     hmr: hmrConfig,
     proxy: {
       '/api': {
-        target: 'https://blah-subsequent-personal-synthetic.trycloudflare.com',
+        target: 'https://aigovernancebackend.vercel.app',
         changeOrigin: true,
       },
     },

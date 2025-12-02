@@ -3,6 +3,9 @@
  * Handles extension lifecycle, Auth0 authentication, and badge updates
  */
 
+// Import configuration from config.js
+import CONFIG from '../../config.js';
+
 console.log('[AI Governance] Background service worker loaded');
 
 // Track stats
@@ -61,6 +64,55 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     case 'AUTH0_CALLBACK':
       handleAuth0Callback(message, sendResponse);
+      return true;
+
+    case 'GET_CONFIG':
+      // Return configuration available in the extension (config.js)
+      try {
+        sendResponse(CONFIG);
+      } catch (err) {
+        console.error('[BG] GET_CONFIG error', err);
+        sendResponse(null);
+      }
+      return false;
+
+    case 'API_REQUEST':
+      // Forward API requests from content scripts; attach auth token and API key
+      (async () => {
+        try {
+          const { method = 'GET', path = '/', body = null, headers = {} } = message.payload || {};
+          const config = await getConfig();
+
+          // Get stored token
+          const items = await new Promise((resolve) => chrome.storage.local.get(['auth0_token'], resolve));
+          const token = items.auth0_token;
+
+          const fetchHeaders = {
+            'Content-Type': 'application/json',
+            ...headers
+          };
+
+          if (token) fetchHeaders['Authorization'] = `Bearer ${token}`;
+          if (config && config.API_KEY) fetchHeaders['X-API-Key'] = config.API_KEY;
+
+          const url = (config && config.API_URL) ? `${config.API_URL.replace(/\/$/, '')}${path}` : path;
+
+          const res = await fetch(url, {
+            method,
+            headers: fetchHeaders,
+            body: body ? JSON.stringify(body) : undefined
+          });
+
+          let data = null;
+          const text = await res.text();
+          try { data = JSON.parse(text); } catch (e) { data = text; }
+
+          sendResponse({ ok: res.ok, status: res.status, data });
+        } catch (err) {
+          console.error('[BG] API_REQUEST error', err);
+          sendResponse({ ok: false, error: err.message });
+        }
+      })();
       return true;
   }
 
@@ -266,11 +318,7 @@ async function getUserInfo() {
  * Get config from background
  */
 async function getConfig() {
-  return new Promise((resolve) => {
-    // Import config from config.js
-    // In a real extension, you'd load this from config.js
-    resolve(CONFIG); // CONFIG is loaded globally from config.js
-  });
+  return CONFIG;
 }
 
 /**

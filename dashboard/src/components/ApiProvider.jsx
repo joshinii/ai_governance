@@ -18,7 +18,7 @@ export function ApiProvider({ children }) {
         try {
           // Get token with the Auth0 API audience
           const token = await getAccessTokenSilently({
-            audience: import.meta.env.VITE_AUTH0_AUDIENCE || 'https://blah-subsequent-personal-synthetic.trycloudflare.com',
+            audience: import.meta.env.VITE_AUTH0_AUDIENCE || 'https://aigovernancebackend.vercel.app',
             scope: 'openid profile email'
           });
           return token;

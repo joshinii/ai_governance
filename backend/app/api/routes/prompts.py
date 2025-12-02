@@ -8,7 +8,6 @@ from typing import List, Dict
 
 from ...models.database import PromptLog, User
 from ...models.schemas import PromptLogCreate, PromptLogResponse
-from ...core.security import verify_api_key
 # from ...prompt_generation.generator import RuleBasedGenerator
 from ...prompt_generation.cache import prompt_cache
 from .usage import get_db
@@ -24,8 +23,7 @@ print("DEBUG: prompts.py module loaded - LLM Service Enabled")
 async def generate_variants(
     original_prompt: str,
     context: str = None,
-    user_email: str = None,
-    api_key: str = Depends(verify_api_key)
+    user_email: str = None
 ):
     """
     Generate 3 improved variants of a prompt using LLM and Knowledge Graph
@@ -94,8 +92,7 @@ async def generate_variants(
 @router.post("/log")
 async def log_prompt_choice(
     log_data: PromptLogCreate,
-    db: Session = Depends(get_db),
-    api_key: str = Depends(verify_api_key)
+    db: Session = Depends(get_db)
 ):
     """
     Log which prompt variant the user chose
@@ -106,7 +103,6 @@ async def log_prompt_choice(
     Args:
         log_data: Contains original prompt, chosen variant, and all variants
         db: Database session
-        api_key: Validated API key
         
     Returns:
         Created prompt log record
@@ -169,7 +165,7 @@ async def log_prompt_choice(
 
 
 @router.get("/cache-stats")
-async def get_cache_stats(api_key: str = Depends(verify_api_key)):
+async def get_cache_stats():
     """
     Get cache statistics
     

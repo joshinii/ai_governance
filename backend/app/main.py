@@ -34,7 +34,7 @@ All endpoints (except `/health` and `/`) require an Auth0 JWT token in the `Auth
 
 Example:
 ```bash
-curl -H "Authorization: Bearer YOUR_AUTH0_JWT_TOKEN" https://blah-subsequent-personal-synthetic.trycloudflare.com/users/me
+curl -H "Authorization: Bearer YOUR_AUTH0_JWT_TOKEN" https://aigovernancebackend.vercel.app/users/me
 ```
 
 ## Getting Started
@@ -121,7 +121,7 @@ async def health_check():
         return {"status": "unhealthy", "error": str(e)}
 
 """
-fetch('https://blah-subsequent-personal-synthetic.trycloudflare.com/test')
+fetch('https://aigovernancebackend.vercel.app/test')
   .then(r => r.json())
   .then(data => console.log(data))
   .catch(err => console.error(err));

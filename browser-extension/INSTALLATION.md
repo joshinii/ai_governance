@@ -6,7 +6,7 @@ Edit `config.js`:
 
 ```javascript
 const CONFIG = {
-  API_URL: 'https://blah-subsequent-personal-synthetic.trycloudflare.com',
+  API_URL: 'https://aigovernancebackend.vercel.app',
   API_KEY: 'dev-secret-key-change-in-production',
   USER_EMAIL: 'test@company.com',  // Change this to your email
   ORG_ID: 1
@@ -66,7 +66,7 @@ Click extension icon to see:
 **Can't connect to backend:**
 - Ensure backend is running: `docker-compose up`
 - Check API_URL in config.js
-- Test: `curl https://blah-subsequent-personal-synthetic.trycloudflare.com/health`
+- Test: `curl https://aigovernancebackend.vercel.app/health`
 
 **Not intercepting prompts:**
 - Check browser console (F12) for errors

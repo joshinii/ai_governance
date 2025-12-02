@@ -24,10 +24,10 @@ cp .env.example .env
 docker-compose up -d
 
 # Check if running
-curl https://blah-subsequent-personal-synthetic.trycloudflare.com/health
+curl https://aigovernancebackend.vercel.app/health
 ```
 
-The API will be available at `https://blah-subsequent-personal-synthetic.trycloudflare.com`
+The API will be available at `https://aigovernancebackend.vercel.app`
 
 #### Option B: Manual Setup
 
@@ -66,8 +66,8 @@ Tables are created automatically on first run. Schema includes:
 ### 4. API Documentation
 
 Once running, visit:
-- Swagger UI: `https://blah-subsequent-personal-synthetic.trycloudflare.com/docs`
-- ReDoc: `https://blah-subsequent-personal-synthetic.trycloudflare.com/redoc`
+- Swagger UI: `https://aigovernancebackend.vercel.app/docs`
+- ReDoc: `https://aigovernancebackend.vercel.app/redoc`
 
 ### 5. Testing the API
 
@@ -76,7 +76,7 @@ Once running, visit:
 export API_KEY="dev-secret-key-change-in-production"
 
 # Create a usage log
-curl -X POST https://blah-subsequent-personal-synthetic.trycloudflare.com/usage-logs/ \
+curl -X POST https://aigovernancebackend.vercel.app/usage-logs/ \
   -H "X-API-Key: $API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -87,13 +87,13 @@ curl -X POST https://blah-subsequent-personal-synthetic.trycloudflare.com/usage-
   }'
 
 # Get usage analytics
-curl https://blah-subsequent-personal-synthetic.trycloudflare.com/analytics/usage?days=7 \
+curl https://aigovernancebackend.vercel.app/analytics/usage?days=7 \
   -H "X-API-Key: $API_KEY"
 ```
 
 ### 6. Connecting from Browser Extension
 
-Extension should send requests to `https://blah-subsequent-personal-synthetic.trycloudflare.com` with header:
+Extension should send requests to `https://aigovernancebackend.vercel.app` with header:
 ```
 X-API-Key: dev-secret-key-change-in-production
 ```
@@ -304,7 +304,7 @@ When users type a prompt in the browser extension:
 ### Example API Call
 
 ```bash
-curl "https://blah-subsequent-personal-synthetic.trycloudflare.com/prompt-variants/?original_prompt=make%20this%20better" \
+curl "https://aigovernancebackend.vercel.app/prompt-variants/?original_prompt=make%20this%20better" \
   -H "X-API-Key: dev-secret-key-change-in-production"
 ```
 

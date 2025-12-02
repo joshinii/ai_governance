@@ -24,10 +24,10 @@ async function initializeConfig() {
 function getDefaultConfig() {
   // Fallback defaults - should match config.js
   return {
-    API_URL: 'https://sunshineless-beckett-axial.ngrok-free.dev',
+    API_URL: 'https://aigovernancebackend.vercel.app',
     AUTH0_DOMAIN: 'dev-y75lecimhanaeqy7.us.auth0.com',
-    AUTH0_CLIENT_ID: 'p6onL1VwfnH2gHMjqjTw4pw16g2KnSZS',
-    AUTH0_API_AUDIENCE: 'https://sunshineless-beckett-axial.ngrok-free.dev',
+    AUTH0_CLIENT_ID: 'WhzBlOdMwksEotPnSN7y7OJktRnUzi3u',
+    AUTH0_API_AUDIENCE: 'https://aigovernancebackend.vercel.app',
     FEATURES: {
       PII_DETECTION: true,
       PROMPT_VARIANTS: true,
@@ -49,9 +49,14 @@ async function loadStats() {
   try {
     const stats = await chrome.runtime.sendMessage({ type: 'GET_STATS' });
 
-    document.getElementById('prompts-count').textContent = stats.promptsMonitored || 0;
-    document.getElementById('pii-count').textContent = stats.piiBlocked || 0;
-    document.getElementById('variants-count').textContent = stats.variantsUsed || 0;
+    const promptsEl = document.getElementById('prompts-count');
+    if (promptsEl) promptsEl.textContent = stats.promptsMonitored || 0;
+    
+    const piiEl = document.getElementById('pii-count');
+    if (piiEl) piiEl.textContent = stats.piiBlocked || 0;
+    
+    const variantsEl = document.getElementById('variants-count');
+    if (variantsEl) variantsEl.textContent = stats.variantsUsed || 0;
   } catch (error) {
     console.error('Failed to load stats:', error);
   }
@@ -61,199 +66,241 @@ async function loadStats() {
 async function loadConfigurationForm() {
   if (!CONFIG) await initializeConfig();
 
-  document.getElementById('config-api-url').value = CONFIG.API_URL || '';
-  document.getElementById('config-auth0-domain').value = CONFIG.AUTH0_DOMAIN || '';
-  document.getElementById('config-auth0-client-id').value = CONFIG.AUTH0_CLIENT_ID || '';
-  document.getElementById('config-auth0-audience').value = CONFIG.AUTH0_API_AUDIENCE || '';
+  const apiUrlEl = document.getElementById('config-api-url');
+  if (apiUrlEl) apiUrlEl.value = CONFIG.API_URL || '';
+  
+  const auth0DomainEl = document.getElementById('config-auth0-domain');
+  if (auth0DomainEl) auth0DomainEl.value = CONFIG.AUTH0_DOMAIN || '';
+  
+  const auth0ClientIdEl = document.getElementById('config-auth0-client-id');
+  if (auth0ClientIdEl) auth0ClientIdEl.value = CONFIG.AUTH0_CLIENT_ID || '';
+  
+  const auth0AudienceEl = document.getElementById('config-auth0-audience');
+  if (auth0AudienceEl) auth0AudienceEl.value = CONFIG.AUTH0_API_AUDIENCE || '';
 }
 
 // Toggle configuration panel visibility
-document.getElementById('toggle-config').addEventListener('click', async () => {
-  const panel = document.getElementById('config-panel');
-  const button = document.getElementById('toggle-config');
+const toggleConfigBtn = document.getElementById('toggle-config');
+if (toggleConfigBtn) {
+  toggleConfigBtn.addEventListener('click', async () => {
+    const panel = document.getElementById('config-panel');
+    const button = document.getElementById('toggle-config');
 
-  panel.classList.toggle('hidden');
-  button.textContent = panel.classList.contains('hidden') ? 'Show Configuration' : 'Hide Configuration';
+    panel.classList.toggle('hidden');
+    button.textContent = panel.classList.contains('hidden') ? 'Show Configuration' : 'Hide Configuration';
 
-  if (!panel.classList.contains('hidden')) {
-    await loadConfigurationForm();
-  }
-});
+    if (!panel.classList.contains('hidden')) {
+      await loadConfigurationForm();
+    }
+  });
+}
 
 // Save configuration
-document.getElementById('save-config').addEventListener('click', async () => {
-  const config = {
-    API_URL: document.getElementById('config-api-url').value.trim(),
-    AUTH0_DOMAIN: document.getElementById('config-auth0-domain').value.trim(),
-    AUTH0_CLIENT_ID: document.getElementById('config-auth0-client-id').value.trim(),
-    AUTH0_API_AUDIENCE: document.getElementById('config-auth0-audience').value.trim(),
-    FEATURES: CONFIG.FEATURES,
-    AI_TOOLS: CONFIG.AI_TOOLS
-  };
+const saveConfigBtn = document.getElementById('save-config');
+if (saveConfigBtn) {
+  saveConfigBtn.addEventListener('click', async () => {
+    const config = {
+      API_URL: (document.getElementById('config-api-url')?.value || '').trim(),
+      AUTH0_DOMAIN: (document.getElementById('config-auth0-domain')?.value || '').trim(),
+      AUTH0_CLIENT_ID: (document.getElementById('config-auth0-client-id')?.value || '').trim(),
+      AUTH0_API_AUDIENCE: (document.getElementById('config-auth0-audience')?.value || '').trim(),
+      FEATURES: CONFIG?.FEATURES || {},
+      AI_TOOLS: CONFIG?.AI_TOOLS || {}
+    };
 
-  const statusEl = document.getElementById('config-status');
+    const statusEl = document.getElementById('config-status');
 
-  // Validate inputs
-  if (!config.API_URL || !config.AUTH0_DOMAIN || !config.AUTH0_CLIENT_ID || !config.AUTH0_API_AUDIENCE) {
-    statusEl.textContent = '❌ All configuration fields are required';
-    statusEl.style.color = '#dc2626';
-    return;
-  }
-
-  try {
-    // Validate URLs
-    new URL(config.API_URL);
-    new URL(config.AUTH0_API_AUDIENCE);
-  } catch (error) {
-    statusEl.textContent = '❌ Invalid URL format. Please check your input.';
-    statusEl.style.color = '#dc2626';
-    return;
-  }
-
-  try {
-    // Send configuration to background script to save
-    const response = await chrome.runtime.sendMessage({
-      type: 'SAVE_CONFIG',
-      config: config
-    });
-
-    if (response.success) {
-      CONFIG = config;
-      statusEl.textContent = '✅ Configuration saved successfully!';
-      statusEl.style.color = '#10b981';
-
-      setTimeout(() => {
-        statusEl.textContent = '';
-      }, 3000);
-    } else {
-      statusEl.textContent = '❌ Failed to save configuration: ' + (response.error || 'Unknown error');
-      statusEl.style.color = '#dc2626';
+    // Validate inputs
+    if (!config.API_URL || !config.AUTH0_DOMAIN || !config.AUTH0_CLIENT_ID || !config.AUTH0_API_AUDIENCE) {
+      if (statusEl) {
+        statusEl.textContent = '❌ All configuration fields are required';
+        statusEl.style.color = '#dc2626';
+      }
+      return;
     }
-  } catch (error) {
-    statusEl.textContent = '❌ Error saving configuration: ' + error.message;
-    statusEl.style.color = '#dc2626';
-  }
-});
 
-// Reset configuration to defaults
-document.getElementById('reset-config').addEventListener('click', async () => {
-  if (confirm('Are you sure you want to reset to default configuration?')) {
     try {
+      // Validate URLs
+      new URL(config.API_URL);
+      new URL(config.AUTH0_API_AUDIENCE);
+    } catch (error) {
+      if (statusEl) {
+        statusEl.textContent = '❌ Invalid URL format. Please check your input.';
+        statusEl.style.color = '#dc2626';
+      }
+      return;
+    }
+
+    try {
+      // Send configuration to background script to save
       const response = await chrome.runtime.sendMessage({
-        type: 'RESET_CONFIG'
+        type: 'SAVE_CONFIG',
+        config: config
       });
 
       if (response.success) {
-        CONFIG = getDefaultConfig();
-        await loadConfigurationForm();
-        const statusEl = document.getElementById('config-status');
-        statusEl.textContent = '✅ Configuration reset to defaults';
-        statusEl.style.color = '#10b981';
+        CONFIG = config;
+        if (statusEl) {
+          statusEl.textContent = '✅ Configuration saved successfully!';
+          statusEl.style.color = '#10b981';
 
-        setTimeout(() => {
-          statusEl.textContent = '';
-        }, 3000);
+          setTimeout(() => {
+            statusEl.textContent = '';
+          }, 3000);
+        }
+      } else {
+        if (statusEl) {
+          statusEl.textContent = '❌ Failed to save configuration: ' + (response.error || 'Unknown error');
+          statusEl.style.color = '#dc2626';
+        }
       }
     } catch (error) {
-      const statusEl = document.getElementById('config-status');
-      statusEl.textContent = '❌ Error resetting configuration: ' + error.message;
-      statusEl.style.color = '#dc2626';
+      if (statusEl) {
+        statusEl.textContent = '❌ Error saving configuration: ' + error.message;
+        statusEl.style.color = '#dc2626';
+      }
     }
-  }
-});
+  });
+}
+
+// Reset configuration to defaults
+const resetConfigBtn = document.getElementById('reset-config');
+if (resetConfigBtn) {
+  resetConfigBtn.addEventListener('click', async () => {
+    if (confirm('Are you sure you want to reset to default configuration?')) {
+      try {
+        const response = await chrome.runtime.sendMessage({
+          type: 'RESET_CONFIG'
+        });
+
+        if (response.success) {
+          CONFIG = getDefaultConfig();
+          await loadConfigurationForm();
+          const statusEl = document.getElementById('config-status');
+          if (statusEl) {
+            statusEl.textContent = '✅ Configuration reset to defaults';
+            statusEl.style.color = '#10b981';
+
+            setTimeout(() => {
+              statusEl.textContent = '';
+            }, 3000);
+          }
+        }
+      } catch (error) {
+        const statusEl = document.getElementById('config-status');
+        if (statusEl) {
+          statusEl.textContent = '❌ Error resetting configuration: ' + error.message;
+          statusEl.style.color = '#dc2626';
+        }
+      }
+    }
+  });
+}
 
 // View dashboard button - use dynamic URL from config
-document.getElementById('view-dashboard').addEventListener('click', async () => {
-  if (!CONFIG) await initializeConfig();
+const viewDashboardBtn = document.getElementById('view-dashboard');
+if (viewDashboardBtn) {
+  viewDashboardBtn.addEventListener('click', async () => {
+    if (!CONFIG) await initializeConfig();
 
-  // Extract domain from API_URL for dashboard access
-  try {
-    const apiUrl = new URL(CONFIG.API_URL);
-    const dashboardUrl = apiUrl.protocol + '//' + apiUrl.host;
+    // Extract domain from API_URL for dashboard access
+    try {
+      const apiUrl = new URL(CONFIG.API_URL);
+      const dashboardUrl = apiUrl.protocol + '//' + apiUrl.host;
 
-    chrome.tabs.create({
-      url: dashboardUrl
-    });
-  } catch (error) {
-    // Fallback to hardcoded if parsing fails
-    chrome.tabs.create({
-      url: 'https://aigovernance.vercel.app'
-    });
-  }
-});
+      chrome.tabs.create({
+        url: dashboardUrl
+      });
+    } catch (error) {
+      // Fallback to hardcoded if parsing fails
+      chrome.tabs.create({
+        url: 'https://aigovernance.vercel.app'
+      });
+    }
+  });
+}
 
 // Test connection button - use dynamic API URL
-document.getElementById('test-connection').addEventListener('click', async () => {
-  if (!CONFIG) await initializeConfig();
+const testConnectionBtn = document.getElementById('test-connection');
+if (testConnectionBtn) {
+  testConnectionBtn.addEventListener('click', async () => {
+    if (!CONFIG) await initializeConfig();
 
-  const button = document.getElementById('test-connection');
-  button.textContent = 'Testing...';
-  button.disabled = true;
+    const button = document.getElementById('test-connection');
+    button.textContent = 'Testing...';
+    button.disabled = true;
 
-  try {
-    const response = await fetch(CONFIG.API_URL + '/health', {
-      headers: {
-        'Content-Type': 'application/json'
+    try {
+      const response = await fetch(CONFIG.API_URL + '/health', {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        alert('✅ Backend connection successful!\n\nStatus: ' + data.status);
+      } else {
+        alert('❌ Backend connection failed!\n\nStatus: ' + response.status);
       }
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      alert('✅ Backend connection successful!\n\nStatus: ' + data.status);
-    } else {
-      alert('❌ Backend connection failed!\n\nStatus: ' + response.status);
+    } catch (error) {
+      alert('❌ Cannot reach backend!\n\nMake sure backend is running on ' + CONFIG.API_URL + '\n\nError: ' + error.message);
+    } finally {
+      button.textContent = 'Test Backend Connection';
+      button.disabled = false;
     }
-  } catch (error) {
-    alert('❌ Cannot reach backend!\n\nMake sure backend is running on ' + CONFIG.API_URL + '\n\nError: ' + error.message);
-  } finally {
-    button.textContent = 'Test Backend Connection';
-    button.disabled = false;
-  }
-});
+  });
+}
 
 // Login button
-document.getElementById('login-button').addEventListener('click', async () => {
-  const button = document.getElementById('login-button');
-  button.textContent = 'Logging in...';
-  button.disabled = true;
+const loginBtn = document.getElementById('login-button');
+if (loginBtn) {
+  loginBtn.addEventListener('click', async () => {
+    const button = document.getElementById('login-button');
+    button.textContent = 'Logging in...';
+    button.disabled = true;
 
-  try {
-    // Send message to background script to trigger Auth0 login
-    const result = await chrome.runtime.sendMessage({ type: 'AUTH0_LOGIN' });
+    try {
+      // Send message to background script to trigger Auth0 login
+      const result = await chrome.runtime.sendMessage({ type: 'AUTH0_LOGIN' });
 
-    if (result.success) {
-      alert('✅ Login successful!\n\nYou can now use the extension.');
-      loadStats();
-    } else {
-      alert('❌ Login failed!\n\nError: ' + result.error);
+      if (result.success) {
+        alert('✅ Login successful!\n\nYou can now use the extension.');
+        loadStats();
+      } else {
+        alert('❌ Login failed!\n\nError: ' + result.error);
+      }
+    } catch (error) {
+      alert('❌ Login error!\n\nError: ' + error.message);
+    } finally {
+      button.textContent = 'Login with Auth0';
+      button.disabled = false;
     }
-  } catch (error) {
-    alert('❌ Login error!\n\nError: ' + error.message);
-  } finally {
-    button.textContent = 'Login with Auth0';
-    button.disabled = false;
-  }
-});
+  });
+}
 
 // Logout button
-document.getElementById('logout-button').addEventListener('click', async () => {
-  const button = document.getElementById('logout-button');
-  button.textContent = 'Logging out...';
-  button.disabled = true;
+const logoutBtn = document.getElementById('logout-button');
+if (logoutBtn) {
+  logoutBtn.addEventListener('click', async () => {
+    const button = document.getElementById('logout-button');
+    button.textContent = 'Logging out...';
+    button.disabled = true;
 
-  try {
-    // Send message to background script to trigger logout
-    await chrome.runtime.sendMessage({ type: 'AUTH0_LOGOUT' });
-    alert('✅ Logged out successfully!');
-    updateAuthUI();
-    loadStats();
-  } catch (error) {
-    alert('❌ Logout error!\n\nError: ' + error.message);
-  } finally {
-    button.textContent = 'Logout';
-    button.disabled = false;
-  }
-});
+    try {
+      // Send message to background script to trigger logout
+      await chrome.runtime.sendMessage({ type: 'AUTH0_LOGOUT' });
+      alert('✅ Logged out successfully!');
+      updateAuthUI();
+      loadStats();
+    } catch (error) {
+      alert('❌ Logout error!\n\nError: ' + error.message);
+    } finally {
+      button.textContent = 'Logout';
+      button.disabled = false;
+    }
+  });
+}
 
 // Update UI based on authentication status
 async function updateAuthUI() {

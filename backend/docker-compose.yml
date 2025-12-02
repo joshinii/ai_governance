@@ -31,12 +31,12 @@ services:
       API_KEY_SECRET: dev-secret-key-change-in-production
 
       # CORS Configuration - UPDATE when ngrok URLs change
-      CORS_ORIGINS: https://surrey-tide-neutral-presence.trycloudflare.com,http://localhost:5173,http://localhost:3000
-      ALLOWED_ORIGINS: https://surrey-tide-neutral-presence.trycloudflare.com,http://localhost:5173,http://localhost:3000
+      CORS_ORIGINS: https://aigovernanceportal.vercel.app,http://localhost:5173,http://localhost:3000
+      ALLOWED_ORIGINS: https://aigovernanceportal.vercel.app,http://localhost:5173,http://localhost:3000
 
       # Auth0 Configuration
       AUTH0_DOMAIN: dev-y75lecimhanaeqy7.us.auth0.com
-      AUTH0_API_AUDIENCE: https://blah-subsequent-personal-synthetic.trycloudflare.com
+      AUTH0_API_AUDIENCE: https://aigovernancebackend.vercel.app
     ports:
       - "8000:8000"
     depends_on:

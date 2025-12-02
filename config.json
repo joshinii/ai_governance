@@ -1,19 +1,19 @@
 {
   "frontend": {
-    "url": "https://surrey-tide-neutral-presence.trycloudflare.com",
+    "url": "https://aigovernanceportal.vercel.app",
     "port": 3000,
     "auth0": {
       "domain": "dev-y75lecimhanaeqy7.us.auth0.com",
-      "clientId": "b2Q5VZ2pv4Ve8YralLn1dUtAHeEnpJGl",
-      "audience": "https://surrey-tide-neutral-presence.trycloudflare.com"
+      "clientId": "yeY5NjonTGYxROYhI0JDBuS77CLzEhcb",
+      "audience": "https://aigovernanceportal.vercel.app"
     }
   },
   "backend": {
-    "url": "https://blah-subsequent-personal-synthetic.trycloudflare.com/api",
+    "url": "https://aigovernancebackend.vercel.app/api",
     "port": 8000,
     "localUrl": "http://localhost:8000",
     "allowedOrigins": [
-      "https://surrey-tide-neutral-presence.trycloudflare.com",
+      "https://aigovernanceportal.vercel.app",
       "http://localhost:5173",
       "http://localhost:3000"
     ]
@@ -22,7 +22,7 @@
     "frontend": {
       "url": "http://localhost:5173",
       "auth0": {
-        "audience": "https://blah-subsequent-personal-synthetic.trycloudflare.com"
+        "audience": "https://aigovernancebackend.vercel.app"
       }
     },
     "backend": {

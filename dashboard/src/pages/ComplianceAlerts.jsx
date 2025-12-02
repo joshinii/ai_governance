@@ -24,10 +24,13 @@ function ComplianceAlerts() {
       if (filter === 'unresolved') filters.resolved = false
       
       const data = await alertsApi.getAlerts(filters)
-      setAlerts(data)
+      // Handle both array and object responses
+      const alertsArray = Array.isArray(data) ? data : []
+      setAlerts(alertsArray)
       setError(null)
     } catch (err) {
       setError('Failed to load alerts: ' + err.message)
+      setAlerts([]) // Set empty array on error to prevent .filter error
     } finally {
       setLoading(false)
     }
