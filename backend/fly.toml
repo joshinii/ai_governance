@@ -8,6 +8,9 @@ primary_region = 'iad'
 
 [build]
 
+[env]
+  PORT = "8000"
+
 [http_service]
   internal_port = 8000
   force_https = true
@@ -21,3 +24,7 @@ primary_region = 'iad'
   cpu_kind = 'shared'
   cpus = 1
   memory_mb = 1024
+
+# Postgres database configuration
+# The database will be created using: flyctl postgres create
+# After creation, attach it using: flyctl postgres attach <postgres-app-name>
