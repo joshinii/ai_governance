@@ -1,4 +1,4 @@
-name: Deploy Backend (FastAPI)
+name: Deploy FastAPI Backend
 
 on:
   push:
@@ -8,11 +8,16 @@ on:
       - "backend/**"
 
 jobs:
-  deploy:
+  deploy-backend:
     runs-on: ubuntu-latest
+    env:
+      AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
+      AUTH0_API_AUDIENCE: ${{ secrets.AUTH0_API_AUDIENCE }}
+      API_KEY_SECRET: ${{ secrets.API_KEY_SECRET }}
+      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
     steps:
-      - name: Checkout Repo
+      - name: Checkout Repository
         uses: actions/checkout@v3
 
       - name: Set up Docker Buildx
@@ -21,16 +26,7 @@ jobs:
       - name: Install Flyctl
         uses: superfly/flyctl-actions/setup-flyctl@master
 
-      - name: Log in to Fly.io
-        run: flyctl auth token
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-
       - name: Deploy to Fly.io
         run: |
           cd backend
           flyctl deploy --remote-only
-        env:
-          AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
-          AUTH0_API_AUDIENCE: ${{ secrets.AUTH0_API_AUDIENCE }}
-          API_KEY_SECRET: ${{ secrets.API_KEY_SECRET }}
