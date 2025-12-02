@@ -17,7 +17,6 @@ jobs:
       ALLOWED_ORIGINS: https://aigovernanceportal.vercel.app
       CORS_ORIGINS: https://aigovernanceportal.vercel.app
       GEMINI_MODEL: gemini-2.0-flash-lite
-      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
     steps:
       - name: Checkout Repository
@@ -30,6 +29,8 @@ jobs:
         uses: superfly/flyctl-actions/setup-flyctl@master
 
       - name: Deploy to Fly.io
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
         run: |
           cd backend
           flyctl deploy --remote-only -a backend
