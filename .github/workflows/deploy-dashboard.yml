@@ -1,0 +1,24 @@
+name: Deploy React Dashboard
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "dashboard/**"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel
+
+      - name: Deploy to Vercel
+        run: |
+          cd dashboard
+          vercel --prod --token ${{ secrets.VERCEL_TOKEN }}
