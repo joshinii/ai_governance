@@ -32,4 +32,4 @@ jobs:
       - name: Deploy to Fly.io
         run: |
           cd backend
-          flyctl deploy --remote-only
+          flyctl deploy --remote-only -a backend

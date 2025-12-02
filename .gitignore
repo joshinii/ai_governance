@@ -480,3 +480,5 @@ public/uploads/
 # NewRelic
 newrelic.ini
 newrelic_agent.log
+
+*.md
