@@ -15,7 +15,7 @@ export default defineConfig({
     hmr: hmrConfig,
     proxy: {
       '/api': {
-        target: 'https://aigovernancebackend.vercel.app',
+        target: 'https://ai-governance.fly.dev',
         changeOrigin: true,
       },
     },
