@@ -28,21 +28,14 @@ class UserRole(str, enum.Enum):
 class Organization(Base):
     """Organization model"""
     __tablename__ = "organizations"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), nullable=False)
     short_name = Column(String(20))
-    description = Column(Text)
     domain = Column(String(100), index=True)
-    industry = Column(String(50))
-    address = Column(Text)
-    city = Column(String(100))
-    state = Column(String(50))
-    country = Column(String(50), default='USA')
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    is_active = Column(Boolean, default=True)
-    
+
     # Relationships
     users = relationship("User", back_populates="organization")
     teams = relationship("Team", back_populates="organization")
@@ -200,7 +193,11 @@ from sqlalchemy.orm import sessionmaker
 import os
 
 # Get database URL from environment
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://aigovernance:password123@postgres:5432/aigovernance_db")
+DATABASE_URL = os.getenv(
+    "DATABASE_URL",
+    "postgresql://aigovernance:password123@localhost:5432/aigovernance_db"
+)
+
 
 # Create engine
 engine = create_engine(DATABASE_URL)

@@ -18,7 +18,7 @@ export function ApiProvider({ children }) {
         try {
           // Get token with the Auth0 API audience
           const token = await getAccessTokenSilently({
-            audience: import.meta.env.VITE_AUTH0_AUDIENCE || 'https://ai-governance.fly.dev',
+            audience: import.meta.env.VITE_AUTH0_AUDIENCE || 'https://sunshineless-beckett-axial.ngrok-free.dev',
             scope: 'openid profile email'
           });
           return token;

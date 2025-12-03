@@ -15,7 +15,7 @@ export default defineConfig({
     hmr: hmrConfig,
     proxy: {
       '/api': {
-        target: 'https://ai-governance.fly.dev',
+        target: 'https://sunshineless-beckett-axial.ngrok-free.dev',
         changeOrigin: true,
       },
     },

@@ -39,27 +39,52 @@ async def update_my_role(
 ):
     """
     Update current user's role (POC/Testing only).
-    
+
     NOTE: In production, only admins/security team should be able to change roles.
     This endpoint is for POC testing to allow users to select their role on first login.
-    
+
+    Role-to-Team Assignment:
+    - security_team -> Security Team
+    - team_lead -> Administration Team
+    - employee -> Development Team
+
     Args:
         role_data: Request body with new_role field
         current_user: Current authenticated user
         db: Database session
-    
+
     Returns:
         Updated user profile
     """
     try:
         # Validate role
         role_enum = UserRole(role_data.new_role)
-        
-        # Update role
+
+        # Determine team based on role
+        team_name_map = {
+            UserRole.SECURITY_TEAM: "Security Team",
+            UserRole.TEAM_LEAD: "Administration Team",
+            UserRole.EMPLOYEE: "Development Team"
+        }
+
+        team_name = team_name_map.get(role_enum)
+        team = None
+
+        if team_name:
+            # Find team by name in user's organization
+            team = db.query(Team).filter(
+                Team.name == team_name,
+                Team.org_id == current_user.org_id
+            ).first()
+
+        # Update role and team
         current_user.role = role_enum
+        if team:
+            current_user.team_id = team.id
+
         db.commit()
         db.refresh(current_user)
-        
+
         return {
             "id": current_user.id,
             "email": current_user.email,

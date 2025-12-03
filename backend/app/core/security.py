@@ -251,8 +251,16 @@ async def get_current_user(
                 Organization.domain == email_domain
             ).first()
 
-        # Default to SJSU (id=1) if no org found
-        org_id = org.id if org else 1
+        # Default to first available organization if no match found
+        if not org:
+            org = db.query(Organization).first()
+            if not org:
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail="No organization found in database. Please contact administrator."
+                )
+
+        org_id = org.id
 
         # Create new user with employee role by default
         user = User(

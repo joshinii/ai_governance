@@ -25,10 +25,10 @@ async function initializeConfig() {
     } else {
       // Last resort defaults
       config = {
-        API_URL: 'https://ai-governance.fly.dev',
+        API_URL: 'https://sunshineless-beckett-axial.ngrok-free.dev',
         AUTH0_DOMAIN: 'dev-y75lecimhanaeqy7.us.auth0.com',
         AUTH0_CLIENT_ID: 'WhzBlOdMwksEotPnSN7y7OJktRnUzi3u',
-        AUTH0_API_AUDIENCE: 'https://ai-governance.fly.dev',
+        AUTH0_API_AUDIENCE: 'https://sunshineless-beckett-axial.ngrok-free.dev',
         API_KEY: 'dev-secret-key-change-in-production',
         USER_EMAIL: 'joshini.mn@gmail.com',
         ORG_ID: 1,

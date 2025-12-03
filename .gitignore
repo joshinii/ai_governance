@@ -482,3 +482,5 @@ newrelic.ini
 newrelic_agent.log
 
 *.md
+
+.claude/

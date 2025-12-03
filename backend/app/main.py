@@ -34,7 +34,7 @@ All endpoints (except `/health` and `/`) require an Auth0 JWT token in the `Auth
 
 Example:
 ```bash
-curl -H "Authorization: Bearer YOUR_AUTH0_JWT_TOKEN" https://ai-governance.fly.dev/users/me
+curl -H "Authorization: Bearer YOUR_AUTH0_JWT_TOKEN" https://sunshineless-beckett-axial.ngrok-free.dev/users/me
 ```
 
 ## Getting Started
@@ -125,7 +125,7 @@ async def health_check():
         return {"status": "unhealthy", "error": str(e)}
 
 """
-fetch('https://ai-governance.fly.dev/test')
+fetch('https://sunshineless-beckett-axial.ngrok-free.dev/test')
   .then(r => r.json())
   .then(data => console.log(data))
   .catch(err => console.error(err));

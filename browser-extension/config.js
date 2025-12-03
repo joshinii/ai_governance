@@ -13,12 +13,12 @@
 
 const CONFIG = {
   // Backend API URL - Update in popup settings, not here
-  API_URL: 'https://ai-governance.fly.dev',
+  API_URL: 'https://sunshineless-beckett-axial.ngrok-free.dev',
 
   // Auth0 Configuration - Update in popup settings, not here
   AUTH0_DOMAIN: 'dev-y75lecimhanaeqy7.us.auth0.com',
   AUTH0_CLIENT_ID: 'WhzBlOdMwksEotPnSN7y7OJktRnUzi3u',
-  AUTH0_API_AUDIENCE: 'https://ai-governance.fly.dev',
+  AUTH0_API_AUDIENCE: 'https://sunshineless-beckett-axial.ngrok-free.dev',
 
   // Feature flags
   FEATURES: {
