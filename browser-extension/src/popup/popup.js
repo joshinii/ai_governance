@@ -203,18 +203,28 @@ if (viewDashboardBtn) {
   viewDashboardBtn.addEventListener('click', async () => {
     if (!CONFIG) await initializeConfig();
 
-    // Extract domain from API_URL for dashboard access
     try {
-      const apiUrl = new URL(CONFIG.API_URL);
-      const dashboardUrl = apiUrl.protocol + '//' + apiUrl.host;
+      // Get authentication status and user info
+      const authState = await chrome.runtime.sendMessage({ type: 'IS_AUTHENTICATED' });
+
+      // Use DASHBOARD_URL from config, fallback to hardcoded value
+      let dashboardUrl = CONFIG.DASHBOARD_URL || 'https://articulative-protozoonal-emersyn.ngrok-free.dev';
+
+      // If user is authenticated, append email as query parameter for tracking
+      if (authState.authenticated && authState.userInfo && authState.userInfo.email) {
+        const url = new URL(dashboardUrl);
+        url.searchParams.set('user_email', authState.userInfo.email);
+        dashboardUrl = url.toString();
+      }
 
       chrome.tabs.create({
         url: dashboardUrl
       });
     } catch (error) {
-      // Fallback to hardcoded if parsing fails
+      console.error('[Popup] Dashboard navigation error:', error);
+      // Fallback to hardcoded if anything fails
       chrome.tabs.create({
-        url: 'https://aigovernance.vercel.app'
+        url: 'https://articulative-protozoonal-emersyn.ngrok-free.dev'
       });
     }
   });

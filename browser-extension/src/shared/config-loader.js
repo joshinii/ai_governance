@@ -27,24 +27,19 @@ export async function loadConfig() {
 }
 
 /**
- * Get default configuration hardcoded in config.js
+ * Get default configuration
+ * Returns hardcoded defaults that match config.js
  * @returns {Object} Default configuration object
  */
 export function getDefaultConfig() {
-  // Import the hardcoded config from config.js
-  // This is the fallback when user hasn't configured anything
-  if (typeof CONFIG !== 'undefined') {
-    console.log('[Config] Using default configuration from config.js');
-    return CONFIG;
-  }
-
-  // Last resort hardcoded defaults (should match config.js)
-  console.warn('[Config] Using emergency fallback defaults - config.js not loaded!');
+  // Hardcoded defaults (should match config.js)
+  // Content scripts get config from background, not from config.js directly
   return {
-    API_URL: 'https://api.example.com',
-    AUTH0_DOMAIN: 'dev.auth0.com',
-    AUTH0_CLIENT_ID: 'default-client-id',
-    AUTH0_API_AUDIENCE: 'https://api.example.com',
+    API_URL: 'https://sunshineless-beckett-axial.ngrok-free.dev',
+    DASHBOARD_URL: 'https://articulative-protozoonal-emersyn.ngrok-free.dev',
+    AUTH0_DOMAIN: 'dev-y75lecimhanaeqy7.us.auth0.com',
+    AUTH0_CLIENT_ID: 'WhzBlOdMwksEotPnSN7y7OJktRnUzi3u',
+    AUTH0_API_AUDIENCE: 'https://sunshineless-beckett-axial.ngrok-free.dev',
     FEATURES: {
       PII_DETECTION: true,
       PROMPT_VARIANTS: true,

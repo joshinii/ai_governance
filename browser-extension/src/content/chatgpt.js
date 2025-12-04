@@ -160,6 +160,24 @@ class PromptAnalyzer {
 class APIClient {
   constructor() {
     // Do not store tokens or API URLs in page scope. The background will handle requests.
+    this.userEmail = null;
+  }
+
+  // Get user email from Auth0 token
+  async getUserEmail() {
+    if (this.userEmail) return this.userEmail;
+
+    try {
+      const authState = await chrome.runtime.sendMessage({ type: 'IS_AUTHENTICATED' });
+      if (authState.authenticated && authState.userInfo && authState.userInfo.email) {
+        this.userEmail = authState.userInfo.email;
+        return this.userEmail;
+      }
+    } catch (error) {
+      console.error('[APIClient] Failed to get user email:', error);
+    }
+
+    return null;
   }
 
   async _request(path, options = {}) {
@@ -183,10 +201,11 @@ class APIClient {
   }
 
   async logUsage(data) {
+    const userEmail = await this.getUserEmail();
     return this._request('/usage-logs/', {
       method: 'POST',
       body: JSON.stringify({
-        user_email: this.userEmail,
+        user_email: userEmail,
         tool: data.tool,
         prompt_hash: data.promptHash,
         risk_level: data.riskLevel || 'low'
@@ -203,10 +222,11 @@ class APIClient {
   }
 
   async logPromptHistory(data) {
+    const userEmail = await this.getUserEmail();
     return this._request('/prompt-history/', {
       method: 'POST',
       body: JSON.stringify({
-        user_email: this.userEmail,
+        user_email: userEmail,
         original_prompt: data.originalPrompt,
         final_prompt: data.finalPrompt,
         tool: data.tool,
@@ -222,10 +242,11 @@ class APIClient {
   }
 
   async logPromptLog(data) {
+    const userEmail = await this.getUserEmail();
     return this._request('/prompt-logs/', {
       method: 'POST',
       body: JSON.stringify({
-        user_email: this.userEmail,
+        user_email: userEmail,
         original_prompt: data.originalPrompt,
         chosen_variant: data.chosenVariant,
         variants: data.variants,
@@ -236,10 +257,11 @@ class APIClient {
   }
 
   async createAlert(data) {
+    const userEmail = await this.getUserEmail();
     return this._request('/alerts', {
       method: 'POST',
       body: JSON.stringify({
-        user_email: this.userEmail,
+        user_email: userEmail,
         violation_type: data.violationType,
         details: data.details
       })
